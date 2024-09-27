@@ -21,9 +21,10 @@ const SubMenuItem = ({ item }: { item: ISubItem }) => {
   return (
     <div
       className={`text-sm cursor-pointer p-2 rounded-lg
-        ${isActive 
-          ? 'bg-sidebar-active text-white' 
-          : 'text-gray-700 hover:bg-sidebar-background hover:text-black'
+        ${
+          isActive
+            ? 'bg-sidebar-active text-white'
+            : 'text-gray-700 hover:bg-sidebar-background hover:text-black'
         }`}
       onClick={onClick}
     >

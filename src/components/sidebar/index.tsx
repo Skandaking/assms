@@ -1,11 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import {
-  LayoutDashboard,
-  BadgeInfo,
-  Users,
-  UserPlus,
-} from 'lucide-react';
+import { LayoutDashboard, BadgeInfo, Users, UserPlus } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
 import SidebarItem from './item';
 

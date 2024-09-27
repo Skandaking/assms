@@ -46,19 +46,26 @@ const SidebarItem = ({ item }: { item: ISidebarItem }) => {
     <>
       <div
         className={`flex items-center p-3 rounded-lg cursor-pointer justify-between
-        ${isActive 
-          ? 'bg-sidebar-active text-white' 
-          : 'hover:bg-sidebar-background text-gray-700 hover:text-black'
+        ${
+          isActive
+            ? 'bg-sidebar-active text-white'
+            : 'hover:bg-sidebar-background text-gray-700 hover:text-black'
         }
       `}
         onClick={onClick}
       >
         <div className="flex items-center space-x-2">
-          <Icon size={20} className={isActive ? 'text-white' : 'text-sidebar-iconColor'} />
+          <Icon
+            size={20}
+            className={isActive ? 'text-white' : 'text-sidebar-iconColor'}
+          />
           <p className="text-sm font-semibold">{name}</p>
         </div>
         {items && items.length > 0 && (
-          <ChevronDown size={18} className={isActive ? 'text-white' : 'text-sidebar-iconColor'} />
+          <ChevronDown
+            size={18}
+            className={isActive ? 'text-white' : 'text-sidebar-iconColor'}
+          />
         )}
       </div>
       {expanded && items && items.length > 0 && (
