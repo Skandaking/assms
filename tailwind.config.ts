@@ -9,8 +9,11 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        sidebar: {
+          active: '#000000',
+          background: '#f5f5f5',
+          iconColor: '#4b5563',
+        },
       },
     },
   },
