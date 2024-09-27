@@ -65,7 +65,7 @@ const Sidebar = () => {
         </div>
         <div className="flex flex-col space-y-2">
           {items
-            .filter((item) => item.name !== 'User' || role === 'admin')
+            .filter((item) => item.name !== 'User' || role === 'administrator')
             .map((item, index) => (
               <SidebarItem key={index} item={item} />
             ))}
