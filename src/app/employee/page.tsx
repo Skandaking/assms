@@ -66,7 +66,8 @@ const Employee = () => {
       body: JSON.stringify(newEmployee),
     });
     if (response.ok) {
-      fetchEmployees();
+      const addedEmployee = await response.json();
+      setEmployees([...employees, addedEmployee]);
       setNewEmployee({
         ID: 0,
         GRADE: '',
@@ -83,6 +84,9 @@ const Employee = () => {
         NUMBER_OF_YEARS_AT_DUTY_STATION: '',
       });
       setShowAddForm(false);
+    } else {
+      console.error('Failed to add employee');
+      // You might want to show an error message to the user here
     }
   };
 
@@ -111,7 +115,7 @@ const Employee = () => {
 
         {showAddForm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-20">
-            <div className="bg-white p-6 rounded-lg shadow-xl w-96 max-h-[90vh] overflow-y-auto">
+            <div className="bg-white p-6 rounded-lg shadow-xl w-3/4 max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold">Add New Employee</h2>
                 <button
@@ -121,149 +125,257 @@ const Employee = () => {
                   <X size={24} />
                 </button>
               </div>
-              <form onSubmit={handleAddEmployee}>
-                <input
-                  type="text"
-                  placeholder="Name"
-                  value={newEmployee.NAME}
-                  onChange={(e) =>
-                    setNewEmployee({ ...newEmployee, NAME: e.target.value })
-                  }
-                  className="mb-3 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                />
-                <input
-                  type="text"
-                  placeholder="Grade"
-                  value={newEmployee.GRADE}
-                  onChange={(e) =>
-                    setNewEmployee({ ...newEmployee, GRADE: e.target.value })
-                  }
-                  className="mb-3 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                />
-                <input
-                  type="text"
-                  placeholder="Position"
-                  value={newEmployee.NAME_OF_POSITION}
-                  onChange={(e) =>
-                    setNewEmployee({
-                      ...newEmployee,
-                      NAME_OF_POSITION: e.target.value,
-                    })
-                  }
-                  className="mb-3 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                />
-                <input
-                  type="number"
-                  placeholder="Employee Number"
-                  value={newEmployee.EMP_NUMBER || ''}
-                  onChange={(e) =>
-                    setNewEmployee({
-                      ...newEmployee,
-                      EMP_NUMBER: parseInt(e.target.value) || null,
-                    })
-                  }
-                  className="mb-3 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                />
-                <select
-                  value={newEmployee.GENDER}
-                  onChange={(e) =>
-                    setNewEmployee({ ...newEmployee, GENDER: e.target.value })
-                  }
-                  className="mb-3 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                >
-                  <option value="">Select Gender</option>
-                  <option value="M">Male</option>
-                  <option value="F">Female</option>
-                </select>
-                <input
-                  type="text"
-                  placeholder="Qualification"
-                  value={newEmployee.QUALIFICATION || ''}
-                  onChange={(e) =>
-                    setNewEmployee({
-                      ...newEmployee,
-                      QUALIFICATION: e.target.value,
-                    })
-                  }
-                  className="mb-3 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                />
-                <input
-                  type="date"
-                  placeholder="Date of Birth"
-                  value={newEmployee.DATE_OF_BIRTH || ''}
-                  onChange={(e) =>
-                    setNewEmployee({
-                      ...newEmployee,
-                      DATE_OF_BIRTH: e.target.value,
-                    })
-                  }
-                  className="mb-3 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                />
-                <input
-                  type="date"
-                  placeholder="Date of First Appointment"
-                  value={newEmployee.DATE_OF_FIRST_APPOINTMENT || ''}
-                  onChange={(e) =>
-                    setNewEmployee({
-                      ...newEmployee,
-                      DATE_OF_FIRST_APPOINTMENT: e.target.value,
-                    })
-                  }
-                  className="mb-3 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                />
-                <input
-                  type="date"
-                  placeholder="Date of Promotion to Current Position"
-                  value={
-                    newEmployee.DATE_OF_PROMOTION_TO_CURRENT_POSITION || ''
-                  }
-                  onChange={(e) =>
-                    setNewEmployee({
-                      ...newEmployee,
-                      DATE_OF_PROMOTION_TO_CURRENT_POSITION: e.target.value,
-                    })
-                  }
-                  className="mb-3 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                />
-                <input
-                  type="text"
-                  placeholder="Duty Station"
-                  value={newEmployee.DUTY_STATION}
-                  onChange={(e) =>
-                    setNewEmployee({
-                      ...newEmployee,
-                      DUTY_STATION: e.target.value,
-                    })
-                  }
-                  className="mb-3 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                />
-                <input
-                  type="text"
-                  placeholder="Duty Station District"
-                  value={newEmployee.DUTY_STATION_DISTRICT}
-                  onChange={(e) =>
-                    setNewEmployee({
-                      ...newEmployee,
-                      DUTY_STATION_DISTRICT: e.target.value,
-                    })
-                  }
-                  className="mb-3 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                />
-                <input
-                  type="text"
-                  placeholder="Number of Years at Duty Station"
-                  value={newEmployee.NUMBER_OF_YEARS_AT_DUTY_STATION || ''}
-                  onChange={(e) =>
-                    setNewEmployee({
-                      ...newEmployee,
-                      NUMBER_OF_YEARS_AT_DUTY_STATION: e.target.value,
-                    })
-                  }
-                  className="mb-3 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                />
+              <form
+                onSubmit={handleAddEmployee}
+                className="grid grid-cols-3 gap-4"
+              >
+                <div>
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Name
+                  </label>
+                  <input
+                    id="name"
+                    type="text"
+                    placeholder="Enter full name"
+                    value={newEmployee.NAME}
+                    onChange={(e) =>
+                      setNewEmployee({ ...newEmployee, NAME: e.target.value })
+                    }
+                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="grade"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Grade
+                  </label>
+                  <input
+                    id="grade"
+                    type="text"
+                    placeholder="Enter grade"
+                    value={newEmployee.GRADE}
+                    onChange={(e) =>
+                      setNewEmployee({ ...newEmployee, GRADE: e.target.value })
+                    }
+                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="position"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Position
+                  </label>
+                  <input
+                    id="position"
+                    type="text"
+                    placeholder="Enter position"
+                    value={newEmployee.NAME_OF_POSITION}
+                    onChange={(e) =>
+                      setNewEmployee({
+                        ...newEmployee,
+                        NAME_OF_POSITION: e.target.value,
+                      })
+                    }
+                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="empNumber"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Employee Number
+                  </label>
+                  <input
+                    id="empNumber"
+                    type="number"
+                    placeholder="Enter employee number"
+                    value={newEmployee.EMP_NUMBER || ''}
+                    onChange={(e) =>
+                      setNewEmployee({
+                        ...newEmployee,
+                        EMP_NUMBER: parseInt(e.target.value) || null,
+                      })
+                    }
+                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="gender"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Gender
+                  </label>
+                  <select
+                    id="gender"
+                    value={newEmployee.GENDER}
+                    onChange={(e) =>
+                      setNewEmployee({ ...newEmployee, GENDER: e.target.value })
+                    }
+                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="M">Male</option>
+                    <option value="F">Female</option>
+                  </select>
+                </div>
+                <div>
+                  <label
+                    htmlFor="qualification"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Qualification
+                  </label>
+                  <input
+                    id="qualification"
+                    type="text"
+                    placeholder="Enter qualification"
+                    value={newEmployee.QUALIFICATION || ''}
+                    onChange={(e) =>
+                      setNewEmployee({
+                        ...newEmployee,
+                        QUALIFICATION: e.target.value,
+                      })
+                    }
+                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="dateOfBirth"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Date of Birth
+                  </label>
+                  <input
+                    id="dateOfBirth"
+                    type="date"
+                    value={newEmployee.DATE_OF_BIRTH || ''}
+                    onChange={(e) =>
+                      setNewEmployee({
+                        ...newEmployee,
+                        DATE_OF_BIRTH: e.target.value,
+                      })
+                    }
+                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="dateOfFirstAppointment"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Date of First Appointment
+                  </label>
+                  <input
+                    id="dateOfFirstAppointment"
+                    type="date"
+                    value={newEmployee.DATE_OF_FIRST_APPOINTMENT || ''}
+                    onChange={(e) =>
+                      setNewEmployee({
+                        ...newEmployee,
+                        DATE_OF_FIRST_APPOINTMENT: e.target.value,
+                      })
+                    }
+                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="dateOfPromotion"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Date of Promotion to Current Position
+                  </label>
+                  <input
+                    id="dateOfPromotion"
+                    type="date"
+                    value={
+                      newEmployee.DATE_OF_PROMOTION_TO_CURRENT_POSITION || ''
+                    }
+                    onChange={(e) =>
+                      setNewEmployee({
+                        ...newEmployee,
+                        DATE_OF_PROMOTION_TO_CURRENT_POSITION: e.target.value,
+                      })
+                    }
+                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="dutyStation"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Duty Station
+                  </label>
+                  <input
+                    id="dutyStation"
+                    type="text"
+                    placeholder="Enter duty station"
+                    value={newEmployee.DUTY_STATION}
+                    onChange={(e) =>
+                      setNewEmployee({
+                        ...newEmployee,
+                        DUTY_STATION: e.target.value,
+                      })
+                    }
+                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="dutyStationDistrict"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Duty Station District
+                  </label>
+                  <input
+                    id="dutyStationDistrict"
+                    type="text"
+                    placeholder="Enter duty station district"
+                    value={newEmployee.DUTY_STATION_DISTRICT}
+                    onChange={(e) =>
+                      setNewEmployee({
+                        ...newEmployee,
+                        DUTY_STATION_DISTRICT: e.target.value,
+                      })
+                    }
+                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="yearsAtStation"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Number of Years at Duty Station
+                  </label>
+                  <input
+                    id="yearsAtStation"
+                    type="text"
+                    placeholder="Enter number of years"
+                    value={newEmployee.NUMBER_OF_YEARS_AT_DUTY_STATION || ''}
+                    onChange={(e) =>
+                      setNewEmployee({
+                        ...newEmployee,
+                        NUMBER_OF_YEARS_AT_DUTY_STATION: e.target.value,
+                      })
+                    }
+                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                  />
+                </div>
                 <button
                   type="submit"
-                  className="w-full bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md transition duration-300 ease-in-out"
+                  className="col-span-3 mt-4 bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md transition duration-300 ease-in-out"
                 >
                   Add Employee
                 </button>
