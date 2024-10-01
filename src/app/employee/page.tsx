@@ -52,41 +52,47 @@ const Employee = () => {
   const filteredEmployees = employees.filter(
     (employee) =>
       employee.NAME.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      employee.NAME_OF_POSITION.toLowerCase().includes(
-        searchTerm.toLowerCase()
-      ) ||
+      (employee.EMP_NUMBER &&
+        employee.EMP_NUMBER.toString().includes(searchTerm)) ||
       employee.DUTY_STATION.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleAddEmployee = async (e: React.FormEvent) => {
     e.preventDefault();
-    const response = await fetch('/api/employees', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newEmployee),
-    });
-    if (response.ok) {
-      const addedEmployee = await response.json();
-      setEmployees([...employees, addedEmployee]);
-      setNewEmployee({
-        ID: 0,
-        GRADE: '',
-        NAME_OF_POSITION: '',
-        NAME: '',
-        EMP_NUMBER: null,
-        GENDER: '',
-        QUALIFICATION: '',
-        DATE_OF_BIRTH: '',
-        DATE_OF_FIRST_APPOINTMENT: '',
-        DATE_OF_PROMOTION_TO_CURRENT_POSITION: '',
-        DUTY_STATION: '',
-        DUTY_STATION_DISTRICT: '',
-        NUMBER_OF_YEARS_AT_DUTY_STATION: '',
+    try {
+      const response = await fetch('/api/employees', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newEmployee),
       });
-      setShowAddForm(false);
-    } else {
-      console.error('Failed to add employee');
-      // You might want to show an error message to the user here
+      const responseData = await response.json();
+
+      if (response.ok) {
+        setEmployees([...employees, responseData]);
+        setNewEmployee({
+          ID: 0,
+          GRADE: '',
+          NAME_OF_POSITION: '',
+          NAME: '',
+          EMP_NUMBER: null,
+          GENDER: '',
+          QUALIFICATION: '',
+          DATE_OF_BIRTH: '',
+          DATE_OF_FIRST_APPOINTMENT: '',
+          DATE_OF_PROMOTION_TO_CURRENT_POSITION: '',
+          DUTY_STATION: '',
+          DUTY_STATION_DISTRICT: '',
+          NUMBER_OF_YEARS_AT_DUTY_STATION: '',
+        });
+        setShowAddForm(false);
+        alert('Employee added successfully!');
+      } else {
+        console.error('Server response:', responseData);
+        throw new Error(responseData.message || 'Failed to add employee');
+      }
+    } catch (error) {
+      console.error('Error adding employee:', error);
+      alert(`Failed to add employee. Error: ${error.message}`);
     }
   };
 
@@ -117,7 +123,7 @@ const Employee = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-20">
             <div className="bg-white p-6 rounded-lg shadow-xl w-3/4 max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">Add New Employee</h2>
+                <h2 className="text-xl font-bold">Add Employee Details</h2>
                 <button
                   onClick={() => setShowAddForm(false)}
                   className="text-gray-500 hover:text-gray-700"
