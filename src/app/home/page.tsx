@@ -34,44 +34,35 @@ const Home = () => {
     const districts: StationCount = {};
 
     data.forEach((employee) => {
-      stations[employee.DUTY_STATION] =
-        (stations[employee.DUTY_STATION] || 0) + 1;
+      const normalizedStation = normalizeStationName(employee.DUTY_STATION);
+      stations[normalizedStation] = (stations[normalizedStation] || 0) + 1;
 
-      districts[employee.DUTY_STATION_DISTRICT] =
-        (districts[employee.DUTY_STATION_DISTRICT] || 0) + 1;
+      const normalizedDistrict = employee.DUTY_STATION_DISTRICT.toLowerCase();
+      districts[normalizedDistrict] = (districts[normalizedDistrict] || 0) + 1;
     });
 
     setStationCounts(stations);
     setDistrictCounts(districts);
   };
 
-  const filteredStations = Object.entries(stationCounts).filter(([station]) =>
-    station.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const normalizeStationName = (name: string) => {
+    return name
+      .toLowerCase()
+      .replace(/^min\.?\s+of\s+/, 'ministry of ')
+      .replace(/^ministry\s+of\s+/, 'ministry of ')
+      .replace(/^accountant\s+general\s+-\s+/, 'accountant general - ')
+      .trim();
+  };
 
-  const filteredDistricts = Object.entries(districtCounts).filter(
-    ([district]) => district.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredStations = Object.entries(stationCounts)
+    .filter(([station]) => station.includes(searchTerm.toLowerCase()))
+    .sort((a, b) => b[1] - a[1]);
 
-  const groupedStations = filteredStations.reduce(
-    (acc, [station, count]) => {
-      if (station.includes('Accountant General')) {
-        if (!acc['Accountant General']) {
-          acc['Accountant General'] = { total: 0, divisions: {} };
-        }
-        acc['Accountant General'].total += count;
-        acc['Accountant General'].divisions[station] = count;
-      } else {
-        acc[station] = count;
-      }
-      return acc;
-    },
-    {} as {
-      [key: string]:
-        | number
-        | { total: number; divisions: { [key: string]: number } };
-    }
-  );
+  const filteredDistricts = Object.entries(districtCounts)
+    .filter(([district]) =>
+      district.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => b[1] - a[1]);
 
   return (
     <div className="container mx-auto p-6 bg-gray-100 min-h-screen">
@@ -91,57 +82,68 @@ const Home = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="bg-white p-6 rounded-lg shadow-md overflow-hidden">
           <h2 className="text-2xl font-semibold mb-4 text-gray-700">
-            Employees by Duty Station (MDA)
+            Employees by Duty Station
           </h2>
-          <ul className="space-y-2">
-            {Object.entries(groupedStations).map(([station, count]) => (
-              <li key={station} className="flex justify-between items-center">
-                <span className="text-gray-800">{station}</span>
-                {typeof count === 'number' ? (
-                  <span className="font-semibold text-blue-600">{count}</span>
-                ) : (
-                  <div>
-                    <span className="font-semibold text-blue-600">
-                      {count.total}
-                    </span>
-                    <ul className="ml-4 mt-2 space-y-1">
-                      {Object.entries(count.divisions).map(
-                        ([division, divCount]) => (
-                          <li
-                            key={division}
-                            className="flex justify-between items-center text-sm"
-                          >
-                            <span className="text-gray-600">
-                              {division.replace('Accountant General - ', '')}
-                            </span>
-                            <span className="font-semibold text-green-600">
-                              {divCount}
-                            </span>
-                          </li>
-                        )
-                      )}
-                    </ul>
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Station
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Count
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredStations.map(([station, count]) => (
+                  <tr key={station} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {station}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                      {count}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="bg-white p-6 rounded-lg shadow-md overflow-hidden">
           <h2 className="text-2xl font-semibold mb-4 text-gray-700">
             Employees by District
           </h2>
-          <ul className="space-y-2">
-            {filteredDistricts.map(([district, count]) => (
-              <li key={district} className="flex justify-between items-center">
-                <span className="text-gray-800">{district}</span>
-                <span className="font-semibold text-blue-600">{count}</span>
-              </li>
-            ))}
-          </ul>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    District
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Count
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredDistricts.map(([district, count]) => (
+                  <tr key={district} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {district}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                      {count}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

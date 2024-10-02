@@ -38,6 +38,9 @@ const Employee = () => {
     DUTY_STATION_DISTRICT: '',
     NUMBER_OF_YEARS_AT_DUTY_STATION: '',
   });
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
+    null
+  );
 
   useEffect(() => {
     fetchEmployees();
@@ -57,42 +60,107 @@ const Employee = () => {
       employee.DUTY_STATION.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleAddEmployee = async (e: React.FormEvent) => {
+  const handleAddOrUpdateEmployee = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/employees', {
-        method: 'POST',
+      const url = newEmployee.ID
+        ? `/api/employees/${newEmployee.ID}`
+        : '/api/employees';
+      const method = newEmployee.ID ? 'PUT' : 'POST';
+      const response = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newEmployee),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to add/update employee');
+      }
+
       const responseData = await response.json();
 
-      if (response.ok) {
-        setEmployees([...employees, responseData]);
-        setNewEmployee({
-          ID: 0,
-          GRADE: '',
-          NAME_OF_POSITION: '',
-          NAME: '',
-          EMP_NUMBER: null,
-          GENDER: '',
-          QUALIFICATION: '',
-          DATE_OF_BIRTH: '',
-          DATE_OF_FIRST_APPOINTMENT: '',
-          DATE_OF_PROMOTION_TO_CURRENT_POSITION: '',
-          DUTY_STATION: '',
-          DUTY_STATION_DISTRICT: '',
-          NUMBER_OF_YEARS_AT_DUTY_STATION: '',
-        });
-        setShowAddForm(false);
-        alert('Employee added successfully!');
+      if (newEmployee.ID) {
+        setEmployees(
+          employees.map((emp) =>
+            emp.ID === newEmployee.ID ? { ...emp, ...newEmployee } : emp
+          )
+        );
       } else {
-        console.error('Server response:', responseData);
-        throw new Error(responseData.message || 'Failed to add employee');
+        setEmployees([...employees, responseData]);
       }
+      setNewEmployee({
+        ID: 0,
+        GRADE: '',
+        NAME_OF_POSITION: '',
+        NAME: '',
+        EMP_NUMBER: null,
+        GENDER: '',
+        QUALIFICATION: '',
+        DATE_OF_BIRTH: '',
+        DATE_OF_FIRST_APPOINTMENT: '',
+        DATE_OF_PROMOTION_TO_CURRENT_POSITION: '',
+        DUTY_STATION: '',
+        DUTY_STATION_DISTRICT: '',
+        NUMBER_OF_YEARS_AT_DUTY_STATION: '',
+      });
+      setShowAddForm(false);
+      alert(
+        newEmployee.ID
+          ? 'Employee updated successfully!'
+          : 'Employee added successfully!'
+      );
     } catch (error) {
-      console.error('Error adding employee:', error);
-      alert(`Failed to add employee. Error: ${error.message}`);
+      console.error('Error adding/updating employee:', error);
+      alert(`Failed to add/update employee. Error: ${error.message}`);
+    }
+  };
+
+  const handleRowClick = (employee: Employee) => {
+    setSelectedEmployee(employee === selectedEmployee ? null : employee);
+  };
+
+  const handleEdit = (employee: Employee) => {
+    const formattedEmployee = {
+      ...employee,
+      DATE_OF_BIRTH: employee.DATE_OF_BIRTH
+        ? new Date(employee.DATE_OF_BIRTH).toISOString().split('T')[0]
+        : '',
+      DATE_OF_FIRST_APPOINTMENT: employee.DATE_OF_FIRST_APPOINTMENT
+        ? new Date(employee.DATE_OF_FIRST_APPOINTMENT)
+            .toISOString()
+            .split('T')[0]
+        : '',
+      DATE_OF_PROMOTION_TO_CURRENT_POSITION:
+        employee.DATE_OF_PROMOTION_TO_CURRENT_POSITION
+          ? new Date(employee.DATE_OF_PROMOTION_TO_CURRENT_POSITION)
+              .toISOString()
+              .split('T')[0]
+          : '',
+    };
+    setNewEmployee(formattedEmployee);
+    setShowAddForm(true);
+  };
+
+  const handleDelete = async (employee: Employee) => {
+    if (confirm(`Are you sure you want to delete ${employee.NAME}?`)) {
+      try {
+        const response = await fetch(`/api/employees/${employee.ID}`, {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to delete employee');
+        }
+
+        setEmployees(employees.filter((emp) => emp.ID !== employee.ID));
+        setSelectedEmployee(null);
+        alert('Employee deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting employee:', error);
+        alert(`Failed to delete employee. Error: ${error.message}`);
+      }
     }
   };
 
@@ -132,7 +200,7 @@ const Employee = () => {
                 </button>
               </div>
               <form
-                onSubmit={handleAddEmployee}
+                onSubmit={handleAddOrUpdateEmployee}
                 className="grid grid-cols-3 gap-4"
               >
                 <div>
@@ -383,7 +451,7 @@ const Employee = () => {
                   type="submit"
                   className="col-span-3 mt-4 bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md transition duration-300 ease-in-out"
                 >
-                  Add Employee
+                  {newEmployee.ID ? 'Update Employee' : 'Add Employee'}
                 </button>
               </form>
             </div>
@@ -432,51 +500,83 @@ const Employee = () => {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {filteredEmployees.map((employee) => (
-                  <tr key={employee.ID} className="hover:bg-gray-50">
-                    <td className="py-2 px-2 text-xs whitespace-normal">
-                      {employee.EMP_NUMBER}
-                    </td>
-                    <td className="py-2 px-2 text-xs whitespace-normal">
-                      {employee.GRADE}
-                    </td>
-                    <td className="py-2 px-2 text-xs whitespace-normal">
-                      {employee.NAME}
-                    </td>
-                    <td className="py-2 px-2 text-xs whitespace-normal">
-                      {employee.NAME_OF_POSITION}
-                    </td>
-                    <td className="py-2 px-2 text-xs whitespace-normal">
-                      {employee.GENDER}
-                    </td>
-                    <td className="py-2 px-2 text-xs whitespace-normal">
-                      {employee.QUALIFICATION}
-                    </td>
-                    <td className="py-2 px-2 text-xs whitespace-normal">
-                      {employee.DATE_OF_FIRST_APPOINTMENT
-                        ? new Date(employee.DATE_OF_FIRST_APPOINTMENT)
-                            .toISOString()
-                            .split('T')[0]
-                        : ''}
-                    </td>
-                    <td className="py-2 px-2 text-xs whitespace-normal">
-                      {employee.DATE_OF_PROMOTION_TO_CURRENT_POSITION
-                        ? new Date(
-                            employee.DATE_OF_PROMOTION_TO_CURRENT_POSITION
-                          )
-                            .toISOString()
-                            .split('T')[0]
-                        : ''}
-                    </td>
-                    <td className="py-2 px-2 text-xs whitespace-normal">
-                      {employee.DUTY_STATION}
-                    </td>
-                    <td className="py-2 px-2 text-xs whitespace-normal">
-                      {employee.DUTY_STATION_DISTRICT}
-                    </td>
-                    <td className="py-2 px-2 text-xs whitespace-normal">
-                      {employee.NUMBER_OF_YEARS_AT_DUTY_STATION}
-                    </td>
-                  </tr>
+                  <React.Fragment key={employee.ID}>
+                    <tr
+                      className={`hover:bg-gray-50 cursor-pointer ${
+                        selectedEmployee === employee ? 'bg-blue-100' : ''
+                      }`}
+                      onClick={() => handleRowClick(employee)}
+                    >
+                      <td className="py-2 px-2 text-xs whitespace-normal">
+                        {employee.EMP_NUMBER}
+                      </td>
+                      <td className="py-2 px-2 text-xs whitespace-normal">
+                        {employee.GRADE}
+                      </td>
+                      <td className="py-2 px-2 text-xs whitespace-normal">
+                        {employee.NAME}
+                      </td>
+                      <td className="py-2 px-2 text-xs whitespace-normal">
+                        {employee.NAME_OF_POSITION}
+                      </td>
+                      <td className="py-2 px-2 text-xs whitespace-normal">
+                        {employee.GENDER}
+                      </td>
+                      <td className="py-2 px-2 text-xs whitespace-normal">
+                        {employee.QUALIFICATION}
+                      </td>
+                      <td className="py-2 px-2 text-xs whitespace-normal">
+                        {employee.DATE_OF_FIRST_APPOINTMENT
+                          ? new Date(employee.DATE_OF_FIRST_APPOINTMENT)
+                              .toISOString()
+                              .split('T')[0]
+                          : ''}
+                      </td>
+                      <td className="py-2 px-2 text-xs whitespace-normal">
+                        {employee.DATE_OF_PROMOTION_TO_CURRENT_POSITION
+                          ? new Date(
+                              employee.DATE_OF_PROMOTION_TO_CURRENT_POSITION
+                            )
+                              .toISOString()
+                              .split('T')[0]
+                          : ''}
+                      </td>
+                      <td className="py-2 px-2 text-xs whitespace-normal">
+                        {employee.DUTY_STATION}
+                      </td>
+                      <td className="py-2 px-2 text-xs whitespace-normal">
+                        {employee.DUTY_STATION_DISTRICT}
+                      </td>
+                      <td className="py-2 px-2 text-xs whitespace-normal">
+                        {employee.NUMBER_OF_YEARS_AT_DUTY_STATION}
+                      </td>
+                    </tr>
+                    {selectedEmployee === employee && (
+                      <tr>
+                        <td colSpan={11} className="py-2 px-2">
+                          <div className="flex justify-end space-x-2">
+                            <button
+                              onClick={() => handleEdit(employee)}
+                              className="bg-black hover:bg-gray-800 text-white px-2 py-1 rounded text-xs"
+                            >
+                              <Edit className="h-4 w-4 inline-block mr-1" />{' '}
+                              Edit
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(employee);
+                              }}
+                              className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs"
+                            >
+                              <Trash2 className="h-4 w-4 inline-block mr-1" />{' '}
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>
