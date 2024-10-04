@@ -191,7 +191,9 @@ const Employee = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-20">
             <div className="bg-white p-6 rounded-lg shadow-xl w-3/4 max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">Add Employee Details</h2>
+                <h2 className="text-2xl font-bold mb-4">
+                  {newEmployee.ID ? 'Update Employee' : 'Add Employee'}
+                </h2>
                 <button
                   onClick={() => setShowAddForm(false)}
                   className="text-gray-500 hover:text-gray-700"

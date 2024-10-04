@@ -35,10 +35,13 @@ const Home = () => {
 
     data.forEach((employee) => {
       const normalizedStation = normalizeStationName(employee.DUTY_STATION);
-      stations[normalizedStation] = (stations[normalizedStation] || 0) + 1;
+      const capitalizedStation = capitalizeWords(normalizedStation);
+      stations[capitalizedStation] = (stations[capitalizedStation] || 0) + 1;
 
       const normalizedDistrict = employee.DUTY_STATION_DISTRICT.toLowerCase();
-      districts[normalizedDistrict] = (districts[normalizedDistrict] || 0) + 1;
+      const capitalizedDistrict = capitalizeWords(normalizedDistrict);
+      districts[capitalizedDistrict] =
+        (districts[capitalizedDistrict] || 0) + 1;
     });
 
     setStationCounts(stations);
@@ -54,8 +57,17 @@ const Home = () => {
       .trim();
   };
 
+  const capitalizeWords = (str: string) => {
+    return str.replace(
+      /\b\w+/g,
+      (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    );
+  };
+
   const filteredStations = Object.entries(stationCounts)
-    .filter(([station]) => station.includes(searchTerm.toLowerCase()))
+    .filter(([station]) =>
+      station.toLowerCase().includes(searchTerm.toLowerCase())
+    )
     .sort((a, b) => b[1] - a[1]);
 
   const filteredDistricts = Object.entries(districtCounts)
