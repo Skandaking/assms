@@ -1,18 +1,9 @@
 import { NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
-
-const dbConfig = {
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'acs_staff',
-};
+import { executeQuery } from '@/app/lib/db';
 
 export async function GET() {
-  const connection = await mysql.createConnection(dbConfig);
-
   try {
-    const [rows] = await connection.execute('SELECT * FROM acs_staff_return');
+    const rows = await executeQuery('SELECT * FROM acs_staff_return');
     return NextResponse.json(rows);
   } catch (error) {
     console.error('Error fetching employees:', error);
@@ -20,24 +11,27 @@ export async function GET() {
       { message: 'An error occurred while fetching employees' },
       { status: 500 }
     );
-  } finally {
-    await connection.end();
   }
 }
 
 export async function POST(request: Request) {
   const employeeData = await request.json();
-  const connection = await mysql.createConnection(dbConfig);
 
   try {
-    const [result]: any = await connection.execute(
+    const result: any = await executeQuery(
       `INSERT INTO acs_staff_return (
+        NO_OF_ESTABLISHED_POST, NO_OF_FILLED_POST, NO_OF_VACANT_POST,
         GRADE, NAME_OF_POSITION, NAME, EMP_NUMBER, GENDER, 
         QUALIFICATION, DATE_OF_BIRTH, DATE_OF_FIRST_APPOINTMENT, 
-        DATE_OF_PROMOTION_TO_CURRENT_POSITION, DUTY_STATION, 
-        DUTY_STATION_DISTRICT, NUMBER_OF_YEARS_AT_DUTY_STATION
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        DATE_OF_PROMOTION_TO_CURRENT_POSITION, YEARS_ON_CURRENT_POSITION,
+        PREVIOUS_DUTY_STATION, CURRENT_DUTY_STATION, COST_CENTER, VOTE,
+        DUTY_STATION_DISTRICT, DATE_REPORTED_TO_CURRENT_STATION,
+        NUMBER_OF_YEARS_AT_DUTY_STATION
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
+        employeeData.NO_OF_ESTABLISHED_POST,
+        employeeData.NO_OF_FILLED_POST,
+        employeeData.NO_OF_VACANT_POST,
         employeeData.GRADE,
         employeeData.NAME_OF_POSITION,
         employeeData.NAME,
@@ -47,8 +41,13 @@ export async function POST(request: Request) {
         employeeData.DATE_OF_BIRTH,
         employeeData.DATE_OF_FIRST_APPOINTMENT,
         employeeData.DATE_OF_PROMOTION_TO_CURRENT_POSITION,
-        employeeData.DUTY_STATION,
+        employeeData.YEARS_ON_CURRENT_POSITION,
+        employeeData.PREVIOUS_DUTY_STATION,
+        employeeData.CURRENT_DUTY_STATION,
+        employeeData.COST_CENTER,
+        employeeData.VOTE,
         employeeData.DUTY_STATION_DISTRICT,
+        employeeData.DATE_REPORTED_TO_CURRENT_STATION,
         employeeData.NUMBER_OF_YEARS_AT_DUTY_STATION,
       ]
     );
@@ -67,8 +66,6 @@ export async function POST(request: Request) {
       },
       { status: 500 }
     );
-  } finally {
-    await connection.end();
   }
 }
 
@@ -78,10 +75,9 @@ export async function PUT(
 ) {
   const employeeData = await request.json();
   const { id } = params;
-  const connection = await mysql.createConnection(dbConfig);
 
   try {
-    const [result]: any = await connection.execute(
+    const result: any = await executeQuery(
       'UPDATE acs_staff_return SET ? WHERE ID = ?',
       [employeeData, id]
     );
@@ -106,7 +102,5 @@ export async function PUT(
       },
       { status: 500 }
     );
-  } finally {
-    await connection.end();
   }
 }

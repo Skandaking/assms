@@ -1,18 +1,11 @@
 import { NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
+import { executeQuery } from '@/app/lib/db';
 
 export async function POST(request: Request) {
   const { username, password } = await request.json();
 
-  const connection = await mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'acs_staff',
-  });
-
   try {
-    const [rows]: any = await connection.execute(
+    const rows: any = await executeQuery(
       'SELECT * FROM users WHERE username = ?',
       [username]
     );
@@ -40,7 +33,5 @@ export async function POST(request: Request) {
       { message: 'An error occurred during login' },
       { status: 500 }
     );
-  } finally {
-    await connection.end();
   }
 }

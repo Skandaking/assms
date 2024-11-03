@@ -5,6 +5,9 @@ import { PlusCircle, Search, X, Edit, Trash2 } from 'lucide-react';
 
 interface Employee {
   ID: number;
+  NO_OF_ESTABLISHED_POST: number | null;
+  NO_OF_FILLED_POST: number | null;
+  NO_OF_VACANT_POST: number | null;
   GRADE: string;
   NAME_OF_POSITION: string;
   NAME: string;
@@ -14,8 +17,13 @@ interface Employee {
   DATE_OF_BIRTH: string | null;
   DATE_OF_FIRST_APPOINTMENT: string | null;
   DATE_OF_PROMOTION_TO_CURRENT_POSITION: string | null;
-  DUTY_STATION: string;
+  YEARS_ON_CURRENT_POSITION: string | null;
+  PREVIOUS_DUTY_STATION: string | null;
+  CURRENT_DUTY_STATION: string;
+  COST_CENTER: string | null;
+  VOTE: string | null;
   DUTY_STATION_DISTRICT: string;
+  DATE_REPORTED_TO_CURRENT_STATION: string | null;
   NUMBER_OF_YEARS_AT_DUTY_STATION: string | null;
 }
 
@@ -25,6 +33,9 @@ const Employee = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [newEmployee, setNewEmployee] = useState<Employee>({
     ID: 0,
+    NO_OF_ESTABLISHED_POST: null,
+    NO_OF_FILLED_POST: null,
+    NO_OF_VACANT_POST: null,
     GRADE: '',
     NAME_OF_POSITION: '',
     NAME: '',
@@ -34,8 +45,13 @@ const Employee = () => {
     DATE_OF_BIRTH: '',
     DATE_OF_FIRST_APPOINTMENT: '',
     DATE_OF_PROMOTION_TO_CURRENT_POSITION: '',
-    DUTY_STATION: '',
+    YEARS_ON_CURRENT_POSITION: '',
+    PREVIOUS_DUTY_STATION: '',
+    CURRENT_DUTY_STATION: '',
+    COST_CENTER: '',
+    VOTE: '',
     DUTY_STATION_DISTRICT: '',
+    DATE_REPORTED_TO_CURRENT_STATION: '',
     NUMBER_OF_YEARS_AT_DUTY_STATION: '',
   });
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
@@ -57,7 +73,9 @@ const Employee = () => {
       employee.NAME.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (employee.EMP_NUMBER &&
         employee.EMP_NUMBER.toString().includes(searchTerm)) ||
-      employee.DUTY_STATION.toLowerCase().includes(searchTerm.toLowerCase())
+      employee.CURRENT_DUTY_STATION.toLowerCase().includes(
+        searchTerm.toLowerCase()
+      )
   );
 
   const handleAddOrUpdateEmployee = async (e: React.FormEvent) => {
@@ -91,6 +109,9 @@ const Employee = () => {
       }
       setNewEmployee({
         ID: 0,
+        NO_OF_ESTABLISHED_POST: null,
+        NO_OF_FILLED_POST: null,
+        NO_OF_VACANT_POST: null,
         GRADE: '',
         NAME_OF_POSITION: '',
         NAME: '',
@@ -100,8 +121,13 @@ const Employee = () => {
         DATE_OF_BIRTH: '',
         DATE_OF_FIRST_APPOINTMENT: '',
         DATE_OF_PROMOTION_TO_CURRENT_POSITION: '',
-        DUTY_STATION: '',
+        YEARS_ON_CURRENT_POSITION: '',
+        PREVIOUS_DUTY_STATION: '',
+        CURRENT_DUTY_STATION: '',
+        COST_CENTER: '',
+        VOTE: '',
         DUTY_STATION_DISTRICT: '',
+        DATE_REPORTED_TO_CURRENT_STATION: '',
         NUMBER_OF_YEARS_AT_DUTY_STATION: '',
       });
       setShowAddForm(false);
@@ -207,22 +233,68 @@ const Employee = () => {
               >
                 <div>
                   <label
-                    htmlFor="name"
+                    htmlFor="establishedPost"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Name
+                    Number of Established Posts
                   </label>
                   <input
-                    id="name"
-                    type="text"
-                    placeholder="Enter full name"
-                    value={newEmployee.NAME}
+                    id="establishedPost"
+                    type="number"
+                    value={newEmployee.NO_OF_ESTABLISHED_POST || ''}
                     onChange={(e) =>
-                      setNewEmployee({ ...newEmployee, NAME: e.target.value })
+                      setNewEmployee({
+                        ...newEmployee,
+                        NO_OF_ESTABLISHED_POST:
+                          parseInt(e.target.value) || null,
+                      })
                     }
                     className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
                   />
                 </div>
+
+                <div>
+                  <label
+                    htmlFor="filledPost"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Number of Filled Posts
+                  </label>
+                  <input
+                    id="filledPost"
+                    type="number"
+                    value={newEmployee.NO_OF_FILLED_POST || ''}
+                    onChange={(e) =>
+                      setNewEmployee({
+                        ...newEmployee,
+                        NO_OF_FILLED_POST: parseInt(e.target.value) || null,
+                      })
+                    }
+                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="vacantPost"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Number of Vacant Posts
+                  </label>
+                  <input
+                    id="vacantPost"
+                    type="number"
+                    value={newEmployee.NO_OF_VACANT_POST || ''}
+                    onChange={(e) =>
+                      setNewEmployee({
+                        ...newEmployee,
+                        NO_OF_VACANT_POST: parseInt(e.target.value) || null,
+                      })
+                    }
+                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                  />
+                </div>
+
                 <div>
                   <label
                     htmlFor="grade"
@@ -241,12 +313,13 @@ const Employee = () => {
                     className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
                   />
                 </div>
+
                 <div>
                   <label
                     htmlFor="position"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Position
+                    Name of Position
                   </label>
                   <input
                     id="position"
@@ -262,6 +335,26 @@ const Employee = () => {
                     className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
                   />
                 </div>
+
+                <div>
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    EmployeeName
+                  </label>
+                  <input
+                    id="name"
+                    type="text"
+                    placeholder="Enter full name"
+                    value={newEmployee.NAME}
+                    onChange={(e) =>
+                      setNewEmployee({ ...newEmployee, NAME: e.target.value })
+                    }
+                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                  />
+                </div>
+
                 <div>
                   <label
                     htmlFor="empNumber"
@@ -283,6 +376,7 @@ const Employee = () => {
                     className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
                   />
                 </div>
+
                 <div>
                   <label
                     htmlFor="gender"
@@ -303,6 +397,7 @@ const Employee = () => {
                     <option value="F">Female</option>
                   </select>
                 </div>
+
                 <div>
                   <label
                     htmlFor="qualification"
@@ -324,26 +419,7 @@ const Employee = () => {
                     className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
                   />
                 </div>
-                <div>
-                  <label
-                    htmlFor="dateOfBirth"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Date of Birth
-                  </label>
-                  <input
-                    id="dateOfBirth"
-                    type="date"
-                    value={newEmployee.DATE_OF_BIRTH || ''}
-                    onChange={(e) =>
-                      setNewEmployee({
-                        ...newEmployee,
-                        DATE_OF_BIRTH: e.target.value,
-                      })
-                    }
-                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                  />
-                </div>
+
                 <div>
                   <label
                     htmlFor="dateOfFirstAppointment"
@@ -364,6 +440,7 @@ const Employee = () => {
                     className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
                   />
                 </div>
+
                 <div>
                   <label
                     htmlFor="dateOfPromotion"
@@ -388,25 +465,68 @@ const Employee = () => {
                 </div>
                 <div>
                   <label
-                    htmlFor="dutyStation"
+                    htmlFor="yearsOnCurrentPosition"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Duty Station
+                    Years on Current Position
                   </label>
                   <input
-                    id="dutyStation"
+                    id="yearsOnCurrentPosition"
                     type="text"
-                    placeholder="Enter duty station"
-                    value={newEmployee.DUTY_STATION}
+                    placeholder="Enter years on current position"
+                    value={newEmployee.YEARS_ON_CURRENT_POSITION || ''}
                     onChange={(e) =>
                       setNewEmployee({
                         ...newEmployee,
-                        DUTY_STATION: e.target.value,
+                        YEARS_ON_CURRENT_POSITION: e.target.value,
                       })
                     }
                     className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
                   />
                 </div>
+                <div>
+                  <label
+                    htmlFor="previousDutyStation"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Previous Duty Station
+                  </label>
+                  <input
+                    id="previousDutyStation"
+                    type="text"
+                    placeholder="Enter previous duty station"
+                    value={newEmployee.PREVIOUS_DUTY_STATION || ''}
+                    onChange={(e) =>
+                      setNewEmployee({
+                        ...newEmployee,
+                        PREVIOUS_DUTY_STATION: e.target.value,
+                      })
+                    }
+                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="currentDutyStation"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Current Duty Station
+                  </label>
+                  <input
+                    id="currentDutyStation"
+                    type="text"
+                    placeholder="Enter current duty station"
+                    value={newEmployee.CURRENT_DUTY_STATION}
+                    onChange={(e) =>
+                      setNewEmployee({
+                        ...newEmployee,
+                        CURRENT_DUTY_STATION: e.target.value,
+                      })
+                    }
+                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                  />
+                </div>
+
                 <div>
                   <label
                     htmlFor="dutyStationDistrict"
@@ -428,6 +548,72 @@ const Employee = () => {
                     className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
                   />
                 </div>
+
+                <div>
+                  <label
+                    htmlFor="costCenter"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Cost Center
+                  </label>
+                  <input
+                    id="costCenter"
+                    type="text"
+                    placeholder="Enter cost center"
+                    value={newEmployee.COST_CENTER || ''}
+                    onChange={(e) =>
+                      setNewEmployee({
+                        ...newEmployee,
+                        COST_CENTER: e.target.value,
+                      })
+                    }
+                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="vote"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Vote
+                  </label>
+                  <input
+                    id="vote"
+                    type="text"
+                    placeholder="Enter vote"
+                    value={newEmployee.VOTE || ''}
+                    onChange={(e) =>
+                      setNewEmployee({
+                        ...newEmployee,
+                        VOTE: e.target.value,
+                      })
+                    }
+                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="dateReportedToCurrentStation"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Date Reported to Current Station
+                  </label>
+                  <input
+                    id="dateReportedToCurrentStation"
+                    type="date"
+                    value={newEmployee.DATE_REPORTED_TO_CURRENT_STATION || ''}
+                    onChange={(e) =>
+                      setNewEmployee({
+                        ...newEmployee,
+                        DATE_REPORTED_TO_CURRENT_STATION: e.target.value,
+                      })
+                    }
+                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                  />
+                </div>
+
                 <div>
                   <label
                     htmlFor="yearsAtStation"
@@ -449,6 +635,28 @@ const Employee = () => {
                     className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
                   />
                 </div>
+
+                <div>
+                  <label
+                    htmlFor="dateOfBirth"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Date of Birth
+                  </label>
+                  <input
+                    id="dateOfBirth"
+                    type="date"
+                    value={newEmployee.DATE_OF_BIRTH || ''}
+                    onChange={(e) =>
+                      setNewEmployee({
+                        ...newEmployee,
+                        DATE_OF_BIRTH: e.target.value,
+                      })
+                    }
+                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                  />
+                </div>
+
                 <button
                   type="submit"
                   className="col-span-3 mt-4 bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md transition duration-300 ease-in-out"
@@ -544,7 +752,7 @@ const Employee = () => {
                           : ''}
                       </td>
                       <td className="py-2 px-2 text-xs whitespace-normal">
-                        {employee.DUTY_STATION}
+                        {employee.CURRENT_DUTY_STATION}
                       </td>
                       <td className="py-2 px-2 text-xs whitespace-normal">
                         {employee.DUTY_STATION_DISTRICT}

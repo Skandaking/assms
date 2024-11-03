@@ -1,12 +1,5 @@
 import { NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
-
-const dbConfig = {
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'acs_staff',
-};
+import { executeQuery } from '@/app/lib/db';
 
 export async function PUT(
   request: Request,
@@ -14,17 +7,22 @@ export async function PUT(
 ) {
   const employeeData = await request.json();
   const { id } = params;
-  const connection = await mysql.createConnection(dbConfig);
 
   try {
-    const [result]: any = await connection.execute(
+    const result: any = await executeQuery(
       `UPDATE acs_staff_return SET 
+        NO_OF_ESTABLISHED_POST = ?, NO_OF_FILLED_POST = ?, NO_OF_VACANT_POST = ?,
         GRADE = ?, NAME_OF_POSITION = ?, NAME = ?, EMP_NUMBER = ?, GENDER = ?, 
         QUALIFICATION = ?, DATE_OF_BIRTH = ?, DATE_OF_FIRST_APPOINTMENT = ?, 
-        DATE_OF_PROMOTION_TO_CURRENT_POSITION = ?, DUTY_STATION = ?, 
-        DUTY_STATION_DISTRICT = ?, NUMBER_OF_YEARS_AT_DUTY_STATION = ?
+        DATE_OF_PROMOTION_TO_CURRENT_POSITION = ?, YEARS_ON_CURRENT_POSITION = ?,
+        DUTY_STATION = ?, COST_CENTER = ?, VOTE = ?, PREVIOUS_DUTY_STATION = ?,
+        DUTY_STATION_DISTRICT = ?, DATE_REPORTED_TO_CURRENT_STATION = ?,
+        NUMBER_OF_YEARS_AT_DUTY_STATION = ?
       WHERE ID = ?`,
       [
+        employeeData.NO_OF_ESTABLISHED_POST,
+        employeeData.NO_OF_FILLED_POST,
+        employeeData.NO_OF_VACANT_POST,
         employeeData.GRADE,
         employeeData.NAME_OF_POSITION,
         employeeData.NAME,
@@ -34,8 +32,13 @@ export async function PUT(
         employeeData.DATE_OF_BIRTH,
         employeeData.DATE_OF_FIRST_APPOINTMENT,
         employeeData.DATE_OF_PROMOTION_TO_CURRENT_POSITION,
+        employeeData.YEARS_ON_CURRENT_POSITION,
         employeeData.DUTY_STATION,
+        employeeData.COST_CENTER,
+        employeeData.VOTE,
+        employeeData.PREVIOUS_DUTY_STATION,
         employeeData.DUTY_STATION_DISTRICT,
+        employeeData.DATE_REPORTED_TO_CURRENT_STATION,
         employeeData.NUMBER_OF_YEARS_AT_DUTY_STATION,
         id,
       ]
@@ -61,8 +64,6 @@ export async function PUT(
       },
       { status: 500 }
     );
-  } finally {
-    await connection.end();
   }
 }
 
@@ -71,10 +72,9 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   const { id } = params;
-  const connection = await mysql.createConnection(dbConfig);
 
   try {
-    const [result]: any = await connection.execute(
+    const result: any = await executeQuery(
       'DELETE FROM acs_staff_return WHERE ID = ?',
       [id]
     );
@@ -99,7 +99,5 @@ export async function DELETE(
       },
       { status: 500 }
     );
-  } finally {
-    await connection.end();
   }
 }
