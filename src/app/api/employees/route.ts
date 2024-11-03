@@ -22,11 +22,11 @@ export async function POST(request: Request) {
       `INSERT INTO acs_staff_return (
         NO_OF_ESTABLISHED_POST, NO_OF_FILLED_POST, NO_OF_VACANT_POST,
         GRADE, NAME_OF_POSITION, NAME, EMP_NUMBER, GENDER, 
-        QUALIFICATION, DATE_OF_BIRTH, DATE_OF_FIRST_APPOINTMENT, 
+        QUALIFICATION, DATE_OF_FIRST_APPOINTMENT, 
         DATE_OF_PROMOTION_TO_CURRENT_POSITION, YEARS_ON_CURRENT_POSITION,
-        PREVIOUS_DUTY_STATION, CURRENT_DUTY_STATION, COST_CENTER, VOTE,
-        DUTY_STATION_DISTRICT, DATE_REPORTED_TO_CURRENT_STATION,
-        NUMBER_OF_YEARS_AT_DUTY_STATION
+        PREVIOUS_DUTY_STATION, CURRENT_DUTY_STATION, COST_CENTER, 
+        VOTE, DUTY_STATION_DISTRICT, DATE_REPORTED_TO_CURRENT_STATION,
+        NUMBER_OF_YEARS_AT_DUTY_STATION, DATE_OF_BIRTH
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         employeeData.NO_OF_ESTABLISHED_POST,
@@ -38,7 +38,6 @@ export async function POST(request: Request) {
         employeeData.EMP_NUMBER,
         employeeData.GENDER,
         employeeData.QUALIFICATION,
-        employeeData.DATE_OF_BIRTH,
         employeeData.DATE_OF_FIRST_APPOINTMENT,
         employeeData.DATE_OF_PROMOTION_TO_CURRENT_POSITION,
         employeeData.YEARS_ON_CURRENT_POSITION,
@@ -49,6 +48,7 @@ export async function POST(request: Request) {
         employeeData.DUTY_STATION_DISTRICT,
         employeeData.DATE_REPORTED_TO_CURRENT_STATION,
         employeeData.NUMBER_OF_YEARS_AT_DUTY_STATION,
+        employeeData.DATE_OF_BIRTH,
       ]
     );
 

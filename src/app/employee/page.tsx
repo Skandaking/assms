@@ -27,6 +27,21 @@ interface Employee {
   NUMBER_OF_YEARS_AT_DUTY_STATION: string | null;
 }
 
+const calculateAge = (dateOfBirth: string | null): number => {
+  if (!dateOfBirth) return 0;
+  const today = new Date();
+  const birthDate = new Date(dateOfBirth);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (
+    monthDiff < 0 ||
+    (monthDiff === 0 && today.getDate() < birthDate.getDate())
+  ) {
+    age--;
+  }
+  return age;
+};
+
 const Employee = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -468,7 +483,7 @@ const Employee = () => {
                     htmlFor="yearsOnCurrentPosition"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Years on Current Position
+                    Years on Current Positionawser
                   </label>
                   <input
                     id="yearsOnCurrentPosition"
@@ -673,42 +688,43 @@ const Employee = () => {
             <table className="w-full bg-white table-fixed">
               <thead className="bg-gray-100 sticky top-0">
                 <tr>
-                  <th className="py-3 px-2 text-left text-xs font-medium text-gray-500 capitalize tracking-wider w-1/12">
-                    Emp. no
+                  <th className="py-2 px-2 text-xs text-left">
+                    Established Posts
                   </th>
-                  <th className="py-3 px-2 text-left text-xs font-medium text-gray-500 capitalize tracking-wider w-1/12">
-                    Grade
+                  <th className="py-2 px-2 text-xs text-left">Filled Posts</th>
+                  <th className="py-2 px-2 text-xs text-left">Vacant Posts</th>
+                  <th className="py-2 px-2 text-xs text-left">Grade</th>
+                  <th className="py-2 px-2 text-xs text-left">Position</th>
+                  <th className="py-2 px-2 text-xs text-left">Name</th>
+                  <th className="py-2 px-2 text-xs text-left">Emp Number</th>
+                  <th className="py-2 px-2 text-xs text-left">Gender</th>
+                  <th className="py-2 px-2 text-xs text-left">Qualification</th>
+                  <th className="py-2 px-2 text-xs text-left">Age</th>
+                  <th className="py-2 px-2 text-xs text-left">
+                    First Appointment
                   </th>
-                  <th className="py-3 px-2 text-left text-xs font-medium text-gray-500 capitalize tracking-wider w-2/12">
-                    Name
+                  <th className="py-2 px-2 text-xs text-left">
+                    Promotion Date
                   </th>
-                  <th className="py-3 px-2 text-left text-xs font-medium text-gray-500 capitalize tracking-wider w-2/12">
-                    Position
+                  <th className="py-2 px-2 text-xs text-left">
+                    Years in Position
                   </th>
-                  <th className="py-3 px-2 text-left text-xs font-medium text-gray-500 capitalize tracking-wider w-1/12">
-                    Gender
+                  <th className="py-2 px-2 text-xs text-left">
+                    Previous Station
                   </th>
-                  <th className="py-3 px-2 text-left text-xs font-medium text-gray-500 capitalize tracking-wider w-2/12">
-                    Qualification
+                  <th className="py-2 px-2 text-xs text-left">
+                    Current Station
                   </th>
-                  <th className="py-3 px-2 text-left text-xs font-medium text-gray-500 capitalize tracking-wider w-1/12">
-                    First appt.
-                  </th>
-                  <th className="py-3 px-2 text-left text-xs font-medium text-gray-500 capitalize tracking-wider w-1/12">
-                    Current pos.
-                  </th>
-                  <th className="py-3 px-2 text-left text-xs font-medium text-gray-500 capitalize tracking-wider w-2/12">
-                    Duty station
-                  </th>
-                  <th className="py-3 px-2 text-left text-xs font-medium text-gray-500 capitalize tracking-wider w-2/12">
-                    District
-                  </th>
-                  <th className="py-3 px-2 text-left text-xs font-medium text-gray-500 capitalize tracking-wider w-1/12">
-                    Years at station
+                  <th className="py-2 px-2 text-xs text-left">Cost Center</th>
+                  <th className="py-2 px-2 text-xs text-left">Vote</th>
+                  <th className="py-2 px-2 text-xs text-left">District</th>
+                  <th className="py-2 px-2 text-xs text-left">Date Reported</th>
+                  <th className="py-2 px-2 text-xs text-left">
+                    Years at Station
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody>
                 {filteredEmployees.map((employee) => (
                   <React.Fragment key={employee.ID}>
                     <tr
@@ -718,22 +734,34 @@ const Employee = () => {
                       onClick={() => handleRowClick(employee)}
                     >
                       <td className="py-2 px-2 text-xs whitespace-normal">
-                        {employee.EMP_NUMBER}
+                        {employee.NO_OF_ESTABLISHED_POST}
+                      </td>
+                      <td className="py-2 px-2 text-xs whitespace-normal">
+                        {employee.NO_OF_FILLED_POST}
+                      </td>
+                      <td className="py-2 px-2 text-xs whitespace-normal">
+                        {employee.NO_OF_VACANT_POST}
                       </td>
                       <td className="py-2 px-2 text-xs whitespace-normal">
                         {employee.GRADE}
                       </td>
                       <td className="py-2 px-2 text-xs whitespace-normal">
+                        {employee.NAME_OF_POSITION}
+                      </td>
+                      <td className="py-2 px-2 text-xs whitespace-normal">
                         {employee.NAME}
                       </td>
                       <td className="py-2 px-2 text-xs whitespace-normal">
-                        {employee.NAME_OF_POSITION}
+                        {employee.EMP_NUMBER}
                       </td>
                       <td className="py-2 px-2 text-xs whitespace-normal">
                         {employee.GENDER}
                       </td>
                       <td className="py-2 px-2 text-xs whitespace-normal">
                         {employee.QUALIFICATION}
+                      </td>
+                      <td className="py-2 px-2 text-xs whitespace-normal">
+                        {calculateAge(employee.DATE_OF_BIRTH)}
                       </td>
                       <td className="py-2 px-2 text-xs whitespace-normal">
                         {employee.DATE_OF_FIRST_APPOINTMENT
@@ -752,10 +780,29 @@ const Employee = () => {
                           : ''}
                       </td>
                       <td className="py-2 px-2 text-xs whitespace-normal">
+                        {employee.YEARS_ON_CURRENT_POSITION}
+                      </td>
+                      <td className="py-2 px-2 text-xs whitespace-normal">
+                        {employee.PREVIOUS_DUTY_STATION}
+                      </td>
+                      <td className="py-2 px-2 text-xs whitespace-normal">
                         {employee.CURRENT_DUTY_STATION}
                       </td>
                       <td className="py-2 px-2 text-xs whitespace-normal">
+                        {employee.COST_CENTER}
+                      </td>
+                      <td className="py-2 px-2 text-xs whitespace-normal">
+                        {employee.VOTE}
+                      </td>
+                      <td className="py-2 px-2 text-xs whitespace-normal">
                         {employee.DUTY_STATION_DISTRICT}
+                      </td>
+                      <td className="py-2 px-2 text-xs whitespace-normal">
+                        {employee.DATE_REPORTED_TO_CURRENT_STATION
+                          ? new Date(employee.DATE_REPORTED_TO_CURRENT_STATION)
+                              .toISOString()
+                              .split('T')[0]
+                          : ''}
                       </td>
                       <td className="py-2 px-2 text-xs whitespace-normal">
                         {employee.NUMBER_OF_YEARS_AT_DUTY_STATION}
@@ -763,7 +810,7 @@ const Employee = () => {
                     </tr>
                     {selectedEmployee === employee && (
                       <tr>
-                        <td colSpan={11} className="py-2 px-2">
+                        <td colSpan={20} className="py-2 px-2">
                           <div className="flex justify-end space-x-2">
                             <button
                               onClick={() => handleEdit(employee)}
