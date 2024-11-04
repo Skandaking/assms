@@ -1,7 +1,15 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, Search, X, Edit, Trash2 } from 'lucide-react';
+import {
+  PlusCircle,
+  Search,
+  X,
+  Edit,
+  Trash2,
+  Printer,
+  FileSpreadsheet,
+} from 'lucide-react';
 
 interface Employee {
   ID: number;
@@ -164,30 +172,8 @@ const Employee = () => {
       } else {
         setEmployees([...employees, responseData]);
       }
-      setNewEmployee({
-        ID: 0,
-        NO_OF_ESTABLISHED_POST: null,
-        NO_OF_FILLED_POST: null,
-        NO_OF_VACANT_POST: null,
-        GRADE: '',
-        NAME_OF_POSITION: '',
-        NAME: '',
-        EMP_NUMBER: null,
-        GENDER: '',
-        QUALIFICATION: '',
-        DATE_OF_BIRTH: '',
-        DATE_OF_FIRST_APPOINTMENT: '',
-        DATE_OF_PROMOTION_TO_CURRENT_POSITION: '',
-        YEARS_ON_CURRENT_POSITION: '',
-        PREVIOUS_DUTY_STATION: '',
-        CURRENT_DUTY_STATION: '',
-        COST_CENTER: '',
-        VOTE: '',
-        DUTY_STATION_DISTRICT: '',
-        DATE_REPORTED_TO_CURRENT_STATION: '',
-        NUMBER_OF_YEARS_AT_DUTY_STATION: '',
-      });
-      setShowAddForm(false);
+
+      clearForm();
       alert(
         newEmployee.ID
           ? 'Employee updated successfully!'
@@ -220,6 +206,12 @@ const Employee = () => {
               .toISOString()
               .split('T')[0]
           : '',
+      DATE_REPORTED_TO_CURRENT_STATION:
+        employee.DATE_REPORTED_TO_CURRENT_STATION
+          ? new Date(employee.DATE_REPORTED_TO_CURRENT_STATION)
+              .toISOString()
+              .split('T')[0]
+          : '',
     };
     setNewEmployee(formattedEmployee);
     setShowAddForm(true);
@@ -247,27 +239,198 @@ const Employee = () => {
     }
   };
 
+  const handlePrint = () => {
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      const tableToPrint = document
+        .querySelector('table')
+        ?.cloneNode(true) as HTMLTableElement;
+
+      // Remove the action buttons from the print view
+      if (tableToPrint) {
+        const rows = tableToPrint.querySelectorAll('tr');
+        rows.forEach((row) => {
+          const actionRow = row.querySelector('td[colspan="20"]');
+          if (actionRow) {
+            row.remove();
+          }
+        });
+      }
+
+      printWindow.document.write('<html><head><title>Employee List</title>');
+      printWindow.document.write(`
+        <style>
+          table { border-collapse: collapse; width: 100%; }
+          th, td { border: 1px solid black; padding: 8px; text-align: left; font-size: 12px; }
+          th { background-color: #f3f4f6; }
+          @media print {
+            table { page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+          }
+        </style>
+      `);
+      printWindow.document.write('</head><body>');
+      printWindow.document.write('<h1>Employee List</h1>');
+      printWindow.document.write(tableToPrint?.outerHTML || '');
+      printWindow.document.write('</body></html>');
+      printWindow.document.close();
+      printWindow.print();
+    }
+  };
+
+  const handleExportToExcel = () => {
+    // Helper function to escape CSV values
+    const escapeCSV = (value: any): string => {
+      if (value === null || value === undefined) return '';
+      const stringValue = String(value);
+      if (
+        stringValue.includes(',') ||
+        stringValue.includes('"') ||
+        stringValue.includes('\n')
+      ) {
+        return `"${stringValue.replace(/"/g, '""')}"`;
+      }
+      return stringValue;
+    };
+
+    // Prepare data for export
+    const exportData = filteredEmployees.map((employee) => ({
+      'Established Posts': employee.NO_OF_ESTABLISHED_POST,
+      'Filled Posts': employee.NO_OF_FILLED_POST,
+      'Vacant Posts': employee.NO_OF_VACANT_POST,
+      Name: employee.NAME,
+      Grade: employee.GRADE,
+      Position: employee.NAME_OF_POSITION,
+      'Employee Number': employee.EMP_NUMBER,
+      Gender: employee.GENDER,
+      Qualification: employee.QUALIFICATION,
+      Age: calculateAge(employee.DATE_OF_BIRTH),
+      'Date of Birth': employee.DATE_OF_BIRTH
+        ? new Date(employee.DATE_OF_BIRTH).toISOString().split('T')[0]
+        : '',
+      'First Appointment': employee.DATE_OF_FIRST_APPOINTMENT
+        ? new Date(employee.DATE_OF_FIRST_APPOINTMENT)
+            .toISOString()
+            .split('T')[0]
+        : '',
+      'Promotion Date': employee.DATE_OF_PROMOTION_TO_CURRENT_POSITION
+        ? new Date(employee.DATE_OF_PROMOTION_TO_CURRENT_POSITION)
+            .toISOString()
+            .split('T')[0]
+        : '',
+      'Years in Position': calculateDuration(
+        employee.DATE_OF_PROMOTION_TO_CURRENT_POSITION
+      ),
+      'Previous Station': employee.PREVIOUS_DUTY_STATION,
+      'Current Station': employee.CURRENT_DUTY_STATION,
+      'Cost Center': employee.COST_CENTER,
+      Vote: employee.VOTE,
+      District: employee.DUTY_STATION_DISTRICT,
+      'Date Reported': employee.DATE_REPORTED_TO_CURRENT_STATION
+        ? new Date(employee.DATE_REPORTED_TO_CURRENT_STATION)
+            .toISOString()
+            .split('T')[0]
+        : '',
+      'Years at Station': calculateDuration(
+        employee.DATE_REPORTED_TO_CURRENT_STATION
+      ),
+    }));
+
+    // Create CSV content with proper escaping
+    const header = Object.keys(exportData[0]).join(',') + '\n';
+    const csv = exportData
+      .map((row) =>
+        Object.values(row)
+          .map((value) => escapeCSV(value))
+          .join(',')
+      )
+      .join('\n');
+    const csvContent = header + csv;
+
+    // Add BOM for Excel to properly detect UTF-8
+    const BOM = '\uFEFF';
+    const blob = new Blob([BOM + csvContent], {
+      type: 'text/csv;charset=utf-8;',
+    });
+
+    // Create and trigger download
+    const link = document.createElement('a');
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute(
+        'download',
+        `employees_${new Date().toISOString().split('T')[0]}.csv`
+      );
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+  const clearForm = () => {
+    setNewEmployee({
+      ID: 0,
+      NO_OF_ESTABLISHED_POST: null,
+      NO_OF_FILLED_POST: null,
+      NO_OF_VACANT_POST: null,
+      GRADE: '',
+      NAME_OF_POSITION: '',
+      NAME: '',
+      EMP_NUMBER: null,
+      GENDER: '',
+      QUALIFICATION: '',
+      DATE_OF_BIRTH: '',
+      DATE_OF_FIRST_APPOINTMENT: '',
+      DATE_OF_PROMOTION_TO_CURRENT_POSITION: '',
+      YEARS_ON_CURRENT_POSITION: '',
+      PREVIOUS_DUTY_STATION: '',
+      CURRENT_DUTY_STATION: '',
+      COST_CENTER: '',
+      VOTE: '',
+      DUTY_STATION_DISTRICT: '',
+      DATE_REPORTED_TO_CURRENT_STATION: '',
+      NUMBER_OF_YEARS_AT_DUTY_STATION: '',
+    });
+    setShowAddForm(false);
+    setSelectedEmployee(null);
+  };
+
   return (
     <div className="flex flex-col h-screen">
       <div className="flex-none bg-white shadow-md p-6 sticky top-0 z-10">
         <h1 className="text-3xl font-bold mb-6">Employee Management</h1>
         <div className="flex justify-between items-center mb-6">
-          <div className="relative w-64">
+          <div className="flex items-center space-x-2">
             <input
               type="text"
-              placeholder="Search employees..."
+              placeholder="Search by name, employee number, or duty station..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+              className="p-2 border rounded-md w-96"
             />
-            <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
           </div>
-          <button
-            className="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md flex items-center transition duration-300 ease-in-out shadow-md"
-            onClick={() => setShowAddForm(true)}
-          >
-            <PlusCircle className="mr-2 h-4 w-4" /> Add Employee
-          </button>
+          <div className="flex space-x-2">
+            <button
+              onClick={handlePrint}
+              className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 flex items-center"
+            >
+              <Printer className="h-4 w-4 mr-2" /> Print
+            </button>
+            <button
+              onClick={handleExportToExcel}
+              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 flex items-center"
+            >
+              <FileSpreadsheet className="h-4 w-4 mr-2" /> Export to Excel
+            </button>
+            <button
+              onClick={() => setShowAddForm(true)}
+              className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 flex items-center"
+            >
+              <PlusCircle className="h-4 w-4 mr-2" /> Add Employee
+            </button>
+          </div>
         </div>
 
         {showAddForm && (
@@ -278,7 +441,7 @@ const Employee = () => {
                   {newEmployee.ID ? 'Update Employee' : 'Add Employee'}
                 </h2>
                 <button
-                  onClick={() => setShowAddForm(false)}
+                  onClick={clearForm}
                   className="text-gray-500 hover:text-gray-700"
                 >
                   <X size={24} />

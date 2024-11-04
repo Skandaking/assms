@@ -4,8 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 
 interface Employee {
-  DUTY_STATION: string;
+  CURRENT_DUTY_STATION: string;
   DUTY_STATION_DISTRICT: string;
+  NAME: string;
+  EMP_NUMBER: number;
+  VOTE: string;
 }
 
 interface StationCount {
@@ -23,10 +26,14 @@ const Home = () => {
   }, []);
 
   const fetchEmployees = async () => {
-    const response = await fetch('/api/employees');
-    const data = await response.json();
-    setEmployees(data);
-    processEmployeeData(data);
+    try {
+      const response = await fetch('/api/employees');
+      const data = await response.json();
+      setEmployees(data);
+      processEmployeeData(data);
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+    }
   };
 
   const processEmployeeData = (data: Employee[]) => {
@@ -34,14 +41,20 @@ const Home = () => {
     const districts: StationCount = {};
 
     data.forEach((employee) => {
-      const normalizedStation = normalizeStationName(employee.DUTY_STATION);
-      const capitalizedStation = capitalizeWords(normalizedStation);
-      stations[capitalizedStation] = (stations[capitalizedStation] || 0) + 1;
+      if (employee.CURRENT_DUTY_STATION) {
+        const normalizedStation = normalizeStationName(
+          employee.CURRENT_DUTY_STATION
+        );
+        const capitalizedStation = capitalizeWords(normalizedStation);
+        stations[capitalizedStation] = (stations[capitalizedStation] || 0) + 1;
+      }
 
-      const normalizedDistrict = employee.DUTY_STATION_DISTRICT.toLowerCase();
-      const capitalizedDistrict = capitalizeWords(normalizedDistrict);
-      districts[capitalizedDistrict] =
-        (districts[capitalizedDistrict] || 0) + 1;
+      if (employee.DUTY_STATION_DISTRICT) {
+        const normalizedDistrict = employee.DUTY_STATION_DISTRICT.toLowerCase();
+        const capitalizedDistrict = capitalizeWords(normalizedDistrict);
+        districts[capitalizedDistrict] =
+          (districts[capitalizedDistrict] || 0) + 1;
+      }
     });
 
     setStationCounts(stations);
@@ -49,6 +62,7 @@ const Home = () => {
   };
 
   const normalizeStationName = (name: string) => {
+    if (!name) return '';
     return name
       .toLowerCase()
       .replace(/^min\.?\s+of\s+/, 'ministry of ')
@@ -58,23 +72,31 @@ const Home = () => {
   };
 
   const capitalizeWords = (str: string) => {
+    if (!str) return '';
     return str.replace(
       /\b\w+/g,
       (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
     );
   };
 
-  const filteredStations = Object.entries(stationCounts)
-    .filter(([station]) =>
-      station.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) => b[1] - a[1]);
+  const searchFilter = (searchTerm: string) => {
+    const term = searchTerm.toLowerCase();
+    const filteredEmployees = employees.filter(
+      (employee) =>
+        (employee.CURRENT_DUTY_STATION || '').toLowerCase().includes(term) ||
+        (employee.DUTY_STATION_DISTRICT || '').toLowerCase().includes(term) ||
+        (employee.NAME || '').toLowerCase().includes(term) ||
+        (employee.VOTE || '').toLowerCase().includes(term) ||
+        (employee.EMP_NUMBER?.toString() || '').includes(term)
+    );
+    processEmployeeData(filteredEmployees);
+  };
 
-  const filteredDistricts = Object.entries(districtCounts)
-    .filter(([district]) =>
-      district.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) => b[1] - a[1]);
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const term = event.target.value;
+    setSearchTerm(term);
+    searchFilter(term);
+  };
 
   return (
     <div className="container mx-auto p-6 bg-gray-100 min-h-screen">
@@ -85,9 +107,9 @@ const Home = () => {
       <div className="mb-6 relative">
         <input
           type="text"
-          placeholder="Search stations or districts..."
+          placeholder="Search by duty station, district, name, vote, or employee number..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={handleSearch}
           className="w-full pl-10 pr-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
         />
         <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
@@ -111,16 +133,18 @@ const Home = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredStations.map(([station, count]) => (
-                  <tr key={station} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {station}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
-                      {count}
-                    </td>
-                  </tr>
-                ))}
+                {Object.entries(stationCounts)
+                  .sort((a, b) => b[1] - a[1])
+                  .map(([station, count]) => (
+                    <tr key={station} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {station}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                        {count}
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
@@ -143,16 +167,18 @@ const Home = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredDistricts.map(([district, count]) => (
-                  <tr key={district} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {district}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
-                      {count}
-                    </td>
-                  </tr>
-                ))}
+                {Object.entries(districtCounts)
+                  .sort((a, b) => b[1] - a[1])
+                  .map(([district, count]) => (
+                    <tr key={district} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {district}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                        {count}
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
