@@ -42,6 +42,38 @@ const calculateAge = (dateOfBirth: string | null): number => {
   return age;
 };
 
+const calculateDuration = (startDate: string | null): string => {
+  if (!startDate) return '';
+
+  const start = new Date(startDate);
+  const today = new Date();
+
+  let years = today.getFullYear() - start.getFullYear();
+  let months = today.getMonth() - start.getMonth();
+  let days = today.getDate() - start.getDate();
+
+  // Adjust for negative days
+  if (days < 0) {
+    months--;
+    const lastMonth = new Date(
+      today.getFullYear(),
+      today.getMonth() - 1,
+      start.getDate()
+    );
+    days = Math.floor(
+      (today.getTime() - lastMonth.getTime()) / (1000 * 60 * 60 * 24)
+    );
+  }
+
+  // Adjust for negative months
+  if (months < 0) {
+    years--;
+    months += 12;
+  }
+
+  return `${years} years, ${months} months, ${days} days`;
+};
+
 const Employee = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -72,9 +104,19 @@ const Employee = () => {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
     null
   );
+  const [currentDate, setCurrentDate] = useState(new Date());
 
   useEffect(() => {
     fetchEmployees();
+  }, []);
+
+  useEffect(() => {
+    // Update once a day
+    const timer = setInterval(() => {
+      setCurrentDate(new Date());
+    }, 86400000); // 24 hours in milliseconds
+
+    return () => clearInterval(timer);
   }, []);
 
   const fetchEmployees = async () => {
@@ -257,13 +299,17 @@ const Employee = () => {
                     id="establishedPost"
                     type="number"
                     value={newEmployee.NO_OF_ESTABLISHED_POST || ''}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const establishedPosts = parseInt(e.target.value) || null;
+                      const filledPosts = newEmployee.NO_OF_FILLED_POST || 0;
                       setNewEmployee({
                         ...newEmployee,
-                        NO_OF_ESTABLISHED_POST:
-                          parseInt(e.target.value) || null,
-                      })
-                    }
+                        NO_OF_ESTABLISHED_POST: establishedPosts,
+                        NO_OF_VACANT_POST: establishedPosts
+                          ? establishedPosts - filledPosts
+                          : null,
+                      });
+                    }}
                     className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
                   />
                 </div>
@@ -279,12 +325,19 @@ const Employee = () => {
                     id="filledPost"
                     type="number"
                     value={newEmployee.NO_OF_FILLED_POST || ''}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const filledPosts = parseInt(e.target.value) || null;
+                      const establishedPosts =
+                        newEmployee.NO_OF_ESTABLISHED_POST || 0;
                       setNewEmployee({
                         ...newEmployee,
-                        NO_OF_FILLED_POST: parseInt(e.target.value) || null,
-                      })
-                    }
+                        NO_OF_FILLED_POST: filledPosts,
+                        NO_OF_VACANT_POST:
+                          filledPosts !== null
+                            ? establishedPosts - filledPosts
+                            : null,
+                      });
+                    }}
                     className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
                   />
                 </div>
@@ -300,13 +353,9 @@ const Employee = () => {
                     id="vacantPost"
                     type="number"
                     value={newEmployee.NO_OF_VACANT_POST || ''}
-                    onChange={(e) =>
-                      setNewEmployee({
-                        ...newEmployee,
-                        NO_OF_VACANT_POST: parseInt(e.target.value) || null,
-                      })
-                    }
-                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                    readOnly
+                    disabled
+                    className="mt-1 p-2 w-full border rounded-md bg-gray-100 cursor-not-allowed"
                   />
                 </div>
 
@@ -469,36 +518,38 @@ const Employee = () => {
                     value={
                       newEmployee.DATE_OF_PROMOTION_TO_CURRENT_POSITION || ''
                     }
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const promotionDate = e.target.value;
                       setNewEmployee({
                         ...newEmployee,
-                        DATE_OF_PROMOTION_TO_CURRENT_POSITION: e.target.value,
-                      })
-                    }
+                        DATE_OF_PROMOTION_TO_CURRENT_POSITION: promotionDate,
+                        YEARS_ON_CURRENT_POSITION:
+                          calculateDuration(promotionDate),
+                      });
+                    }}
                     className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
                   />
                 </div>
+
                 <div>
                   <label
                     htmlFor="yearsOnCurrentPosition"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Years on Current Positionawser
+                    Years on Current Position
                   </label>
                   <input
                     id="yearsOnCurrentPosition"
                     type="text"
-                    placeholder="Enter years on current position"
-                    value={newEmployee.YEARS_ON_CURRENT_POSITION || ''}
-                    onChange={(e) =>
-                      setNewEmployee({
-                        ...newEmployee,
-                        YEARS_ON_CURRENT_POSITION: e.target.value,
-                      })
-                    }
-                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                    value={calculateDuration(
+                      newEmployee.DATE_OF_PROMOTION_TO_CURRENT_POSITION
+                    )}
+                    readOnly
+                    disabled
+                    className="mt-1 p-2 w-full border rounded-md bg-gray-100 cursor-not-allowed"
                   />
                 </div>
+
                 <div>
                   <label
                     htmlFor="previousDutyStation"
@@ -520,6 +571,7 @@ const Employee = () => {
                     className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
                   />
                 </div>
+
                 <div>
                   <label
                     htmlFor="currentDutyStation"
@@ -619,12 +671,15 @@ const Employee = () => {
                     id="dateReportedToCurrentStation"
                     type="date"
                     value={newEmployee.DATE_REPORTED_TO_CURRENT_STATION || ''}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const reportedDate = e.target.value;
                       setNewEmployee({
                         ...newEmployee,
-                        DATE_REPORTED_TO_CURRENT_STATION: e.target.value,
-                      })
-                    }
+                        DATE_REPORTED_TO_CURRENT_STATION: reportedDate,
+                        NUMBER_OF_YEARS_AT_DUTY_STATION:
+                          calculateDuration(reportedDate),
+                      });
+                    }}
                     className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
                   />
                 </div>
@@ -634,20 +689,17 @@ const Employee = () => {
                     htmlFor="yearsAtStation"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Number of Years at Duty Station
+                    Years at Duty Station
                   </label>
                   <input
                     id="yearsAtStation"
                     type="text"
-                    placeholder="Enter number of years"
-                    value={newEmployee.NUMBER_OF_YEARS_AT_DUTY_STATION || ''}
-                    onChange={(e) =>
-                      setNewEmployee({
-                        ...newEmployee,
-                        NUMBER_OF_YEARS_AT_DUTY_STATION: e.target.value,
-                      })
-                    }
-                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                    value={calculateDuration(
+                      newEmployee.DATE_REPORTED_TO_CURRENT_STATION
+                    )}
+                    readOnly
+                    disabled
+                    className="mt-1 p-2 w-full border rounded-md bg-gray-100 cursor-not-allowed"
                   />
                 </div>
 
@@ -693,9 +745,10 @@ const Employee = () => {
                   </th>
                   <th className="py-2 px-2 text-xs text-left">Filled Posts</th>
                   <th className="py-2 px-2 text-xs text-left">Vacant Posts</th>
+                  <th className="py-2 px-2 text-xs text-left">Name</th>
                   <th className="py-2 px-2 text-xs text-left">Grade</th>
                   <th className="py-2 px-2 text-xs text-left">Position</th>
-                  <th className="py-2 px-2 text-xs text-left">Name</th>
+
                   <th className="py-2 px-2 text-xs text-left">Emp Number</th>
                   <th className="py-2 px-2 text-xs text-left">Gender</th>
                   <th className="py-2 px-2 text-xs text-left">Qualification</th>
@@ -743,14 +796,15 @@ const Employee = () => {
                         {employee.NO_OF_VACANT_POST}
                       </td>
                       <td className="py-2 px-2 text-xs whitespace-normal">
+                        {employee.NAME}
+                      </td>
+                      <td className="py-2 px-2 text-xs whitespace-normal">
                         {employee.GRADE}
                       </td>
                       <td className="py-2 px-2 text-xs whitespace-normal">
                         {employee.NAME_OF_POSITION}
                       </td>
-                      <td className="py-2 px-2 text-xs whitespace-normal">
-                        {employee.NAME}
-                      </td>
+
                       <td className="py-2 px-2 text-xs whitespace-normal">
                         {employee.EMP_NUMBER}
                       </td>
@@ -780,7 +834,9 @@ const Employee = () => {
                           : ''}
                       </td>
                       <td className="py-2 px-2 text-xs whitespace-normal">
-                        {employee.YEARS_ON_CURRENT_POSITION}
+                        {calculateDuration(
+                          employee.DATE_OF_PROMOTION_TO_CURRENT_POSITION
+                        )}
                       </td>
                       <td className="py-2 px-2 text-xs whitespace-normal">
                         {employee.PREVIOUS_DUTY_STATION}
@@ -805,7 +861,9 @@ const Employee = () => {
                           : ''}
                       </td>
                       <td className="py-2 px-2 text-xs whitespace-normal">
-                        {employee.NUMBER_OF_YEARS_AT_DUTY_STATION}
+                        {calculateDuration(
+                          employee.DATE_REPORTED_TO_CURRENT_STATION
+                        )}
                       </td>
                     </tr>
                     {selectedEmployee === employee && (
