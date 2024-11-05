@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { FileSpreadsheet, Printer, X } from 'lucide-react';
+import { FileSpreadsheet, Printer, X, AlertCircle } from 'lucide-react';
 
 interface FilterCriteria {
   grade: string;
@@ -24,6 +24,15 @@ interface Employee {
   QUALIFICATION: string;
   DATE_OF_BIRTH: string | null;
   DATE_OF_FIRST_APPOINTMENT: string | null;
+  NAME_OF_POSITION: string;
+  NO_OF_ESTABLISHED_POST: number;
+  NO_OF_FILLED_POST: number;
+  NO_OF_VACANT_POST: number;
+  DATE_OF_PROMOTION_TO_CURRENT_POSITION: string | null;
+  YEARS_ON_CURRENT_POSITION: number;
+  PREVIOUS_DUTY_STATION: string;
+  DATE_REPORTED_TO_CURRENT_STATION: string | null;
+  NUMBER_OF_YEARS_AT_DUTY_STATION: number;
 }
 
 const Reports = () => {
@@ -46,6 +55,8 @@ const Reports = () => {
   const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [showNoResultsError, setShowNoResultsError] = useState(false);
+  const [noResultsMessage, setNoResultsMessage] = useState('');
 
   useEffect(() => {
     fetchUniqueValues();
@@ -99,7 +110,18 @@ const Reports = () => {
         });
       });
 
-      setFilteredEmployees(filtered);
+      if (filtered.length === 0) {
+        const activeFilters = Object.entries(filters)
+          .filter(([_, value]) => value)
+          .map(([key, value]) => `${key}: ${value}`)
+          .join(', ');
+        setNoResultsMessage(`No results found for ${activeFilters}`);
+        setShowNoResultsError(true);
+        setShowReportModal(false);
+      } else {
+        setFilteredEmployees(filtered);
+        setShowReportModal(true);
+      }
     } catch (error) {
       console.error('Error generating report:', error);
     } finally {
@@ -123,17 +145,27 @@ const Reports = () => {
   };
 
   const handleExportToExcel = () => {
-    // Create CSV content
     const headers = [
       'Name',
       'Employee Number',
       'Grade',
-      'Vote',
-      'Current Station',
-      'Cost Center',
-      'District',
+      'Position',
+      'Established Posts',
+      'Filled Posts',
+      'Vacant Posts',
       'Gender',
       'Qualification',
+      'Date of Birth',
+      'First Appointment',
+      'Promotion Date',
+      'Years in Position',
+      'Previous Station',
+      'Current Station',
+      'Cost Center',
+      'Vote',
+      'District',
+      'Date Reported',
+      'Years at Station',
     ].join(',');
 
     const csvContent = filteredEmployees
@@ -142,12 +174,35 @@ const Reports = () => {
           emp.NAME,
           emp.EMP_NUMBER,
           emp.GRADE,
-          emp.VOTE,
-          emp.CURRENT_DUTY_STATION,
-          emp.COST_CENTER,
-          emp.DUTY_STATION_DISTRICT,
+          emp.NAME_OF_POSITION,
+          emp.NO_OF_ESTABLISHED_POST,
+          emp.NO_OF_FILLED_POST,
+          emp.NO_OF_VACANT_POST,
           emp.GENDER,
           emp.QUALIFICATION,
+          emp.DATE_OF_BIRTH
+            ? new Date(emp.DATE_OF_BIRTH).toLocaleDateString()
+            : '',
+          emp.DATE_OF_FIRST_APPOINTMENT
+            ? new Date(emp.DATE_OF_FIRST_APPOINTMENT).toLocaleDateString()
+            : '',
+          emp.DATE_OF_PROMOTION_TO_CURRENT_POSITION
+            ? new Date(
+                emp.DATE_OF_PROMOTION_TO_CURRENT_POSITION
+              ).toLocaleDateString()
+            : '',
+          emp.YEARS_ON_CURRENT_POSITION,
+          emp.PREVIOUS_DUTY_STATION,
+          emp.CURRENT_DUTY_STATION,
+          emp.COST_CENTER,
+          emp.VOTE,
+          emp.DUTY_STATION_DISTRICT,
+          emp.DATE_REPORTED_TO_CURRENT_STATION
+            ? new Date(
+                emp.DATE_REPORTED_TO_CURRENT_STATION
+              ).toLocaleDateString()
+            : '',
+          emp.NUMBER_OF_YEARS_AT_DUTY_STATION,
         ].join(',')
       )
       .join('\n');
@@ -340,8 +395,8 @@ const Reports = () => {
       </div>
 
       {showReportModal && filteredEmployees.length > 0 && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-7xl max-h-[90vh] overflow-hidden">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-[95vw] max-h-[85vh] overflow-hidden mt-16">
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold">
@@ -374,25 +429,64 @@ const Reports = () => {
                   <thead className="bg-gray-50 sticky top-0">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Established Posts
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Filled Posts
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Vacant Posts
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Grade
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Position
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Name
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Emp Number
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Grade
+                        Gender
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Vote
+                        Qualification
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Station
+                        First Appointment
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Promotion Date
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Years in Position
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Previous Station
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Current Station
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Cost Center
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Vote
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         District
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Date Reported
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Years at Station
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Age
                       </th>
                     </tr>
                   </thead>
@@ -400,16 +494,51 @@ const Reports = () => {
                     {filteredEmployees.map((employee) => (
                       <tr key={employee.ID}>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {employee.NO_OF_ESTABLISHED_POST}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {employee.NO_OF_FILLED_POST}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {employee.NO_OF_VACANT_POST}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {employee.GRADE}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {employee.NAME_OF_POSITION}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {employee.NAME}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {employee.EMP_NUMBER}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {employee.GRADE}
+                          {employee.GENDER}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {employee.VOTE}
+                          {employee.QUALIFICATION}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {employee.DATE_OF_FIRST_APPOINTMENT
+                            ? new Date(
+                                employee.DATE_OF_FIRST_APPOINTMENT
+                              ).toLocaleDateString()
+                            : ''}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {employee.DATE_OF_PROMOTION_TO_CURRENT_POSITION
+                            ? new Date(
+                                employee.DATE_OF_PROMOTION_TO_CURRENT_POSITION
+                              ).toLocaleDateString()
+                            : ''}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {employee.YEARS_ON_CURRENT_POSITION}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {employee.PREVIOUS_DUTY_STATION}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {employee.CURRENT_DUTY_STATION}
@@ -418,7 +547,29 @@ const Reports = () => {
                           {employee.COST_CENTER}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {employee.VOTE}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {employee.DUTY_STATION_DISTRICT}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {employee.DATE_REPORTED_TO_CURRENT_STATION
+                            ? new Date(
+                                employee.DATE_REPORTED_TO_CURRENT_STATION
+                              ).toLocaleDateString()
+                            : ''}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {employee.NUMBER_OF_YEARS_AT_DUTY_STATION}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {employee.DATE_OF_BIRTH
+                            ? Math.floor(
+                                (new Date().getTime() -
+                                  new Date(employee.DATE_OF_BIRTH).getTime()) /
+                                  (365.25 * 24 * 60 * 60 * 1000)
+                              )
+                            : ''}
                         </td>
                       </tr>
                     ))}
@@ -426,6 +577,32 @@ const Reports = () => {
                 </table>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showNoResultsError && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center">
+                <AlertCircle className="h-6 w-6 text-red-500 mr-2" />
+                <h2 className="text-xl font-semibold">No Results Found</h2>
+              </div>
+              <button
+                onClick={() => setShowNoResultsError(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            <p className="text-gray-600">{noResultsMessage}</p>
+            <button
+              onClick={() => setShowNoResultsError(false)}
+              className="mt-4 w-full bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
