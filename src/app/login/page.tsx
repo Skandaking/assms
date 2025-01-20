@@ -1,7 +1,7 @@
 'use client';
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
 import logo from '../logo.png';
 
 const Login = () => {
