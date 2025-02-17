@@ -1,6 +1,7 @@
 'use client';
+
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 
 interface ISubItem {
   name: string;
@@ -8,27 +9,28 @@ interface ISubItem {
 }
 
 const SubMenuItem = ({ item }: { item: ISubItem }) => {
-  const { name, path } = item;
   const router = useRouter();
   const pathname = usePathname();
-
-  const onClick = () => {
-    router.push(path);
-  };
-
-  const isActive = useMemo(() => path === pathname, [path, pathname]);
+  const isActive = useMemo(() => item.path === pathname, [item.path, pathname]);
 
   return (
     <div
-      className={`text-sm cursor-pointer p-2 rounded-lg
+      onClick={() => router.push(item.path)}
+      className={`
+        group flex items-center py-2 px-4 mx-2 rounded-md transition-all duration-200
+        text-sm font-medium cursor-pointer
         ${
           isActive
             ? 'bg-sidebar-active text-white'
             : 'text-gray-700 hover:bg-sidebar-background hover:text-black'
-        }`}
-      onClick={onClick}
+        }
+      `}
     >
-      {name}
+      <div
+        className={`w-1.5 h-1.5 rounded-full mr-3 
+        ${isActive ? 'bg-white' : 'bg-gray-400 group-hover:bg-gray-600'}`}
+      />
+      {item.name}
     </div>
   );
 };

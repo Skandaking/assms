@@ -1,9 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
 import { ChevronDown, LucideIcon } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-
+import { useMemo, useState } from 'react';
 import SubMenuItem from './sub-item';
 
 interface ISidebarItem {
@@ -24,58 +23,57 @@ const SidebarItem = ({ item }: { item: ISidebarItem }) => {
   const router = useRouter();
   const pathname = usePathname();
 
-  const onClick = () => {
-    if (items && items.length > 0) {
-      return setExpanded(!expanded);
-    }
-
-    return router.push(path);
-  };
   const isActive = useMemo(() => {
-    if (items && items.length > 0) {
+    if (items?.length) {
       if (items.find((item) => item.path === pathname)) {
         setExpanded(true);
         return true;
       }
     }
-
     return path === pathname;
   }, [items, path, pathname]);
 
   return (
-    <>
+    <div className="mb-1">
       <div
-        className={`flex items-center p-3 rounded-lg cursor-pointer justify-between
-        ${
-          isActive
-            ? 'bg-sidebar-active text-white'
-            : 'hover:bg-sidebar-background text-gray-700 hover:text-black'
+        onClick={() =>
+          items?.length ? setExpanded(!expanded) : router.push(path)
         }
-      `}
-        onClick={onClick}
+        className={`
+          flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer
+          transition-all duration-200 select-none
+          ${
+            isActive
+              ? 'bg-sidebar-active text-white'
+              : 'hover:bg-sidebar-background text-gray-700 hover:text-black'
+          }
+        `}
       >
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-3">
           <Icon
             size={20}
             className={isActive ? 'text-white' : 'text-sidebar-iconColor'}
           />
-          <p className="text-sm font-semibold">{name}</p>
+          <span className="font-medium">{name}</span>
         </div>
-        {items && items.length > 0 && (
+        {items?.length > 0 && (
           <ChevronDown
             size={18}
-            className={isActive ? 'text-white' : 'text-sidebar-iconColor'}
+            className={`transition-transform duration-200
+              ${expanded ? 'rotate-180' : ''}
+              ${isActive ? 'text-white' : 'text-sidebar-iconColor'}
+            `}
           />
         )}
       </div>
-      {expanded && items && items.length > 0 && (
-        <div className="flex flex-col space-y-1 ml-10">
-          {items.map((item) => (
-            <SubMenuItem key={item.path} item={item} />
+      {expanded && items?.length > 0 && (
+        <div className="mt-1 mb-1 py-1">
+          {items.map((subItem) => (
+            <SubMenuItem key={subItem.path} item={subItem} />
           ))}
         </div>
       )}
-    </>
+    </div>
   );
 };
 
