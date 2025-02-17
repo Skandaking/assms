@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface Employee {
   CURRENT_DUTY_STATION: string;
