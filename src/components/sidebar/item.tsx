@@ -56,7 +56,7 @@ const SidebarItem = ({ item }: { item: ISidebarItem }) => {
           />
           <span className="font-medium">{name}</span>
         </div>
-        {items?.length > 0 && (
+        {items && items.length > 0 && (
           <ChevronDown
             size={18}
             className={`transition-transform duration-200
@@ -66,7 +66,7 @@ const SidebarItem = ({ item }: { item: ISidebarItem }) => {
           />
         )}
       </div>
-      {expanded && items?.length > 0 && (
+      {expanded && items && items.length > 0 && (
         <div className="mt-1 mb-1 py-1">
           {items.map((subItem) => (
             <SubMenuItem key={subItem.path} item={subItem} />
