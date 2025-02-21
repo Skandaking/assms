@@ -3,8 +3,8 @@
 import logo from '@/app/logo.png';
 import {
   BadgeInfo,
-  ChevronLeft,
-  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   FileStack,
   LayoutDashboard,
   LucideIcon,
@@ -80,31 +80,17 @@ const Sidebar = ({
   }, []);
 
   return (
-    <div
-      className={`fixed top-0 left-0 h-screen bg-white shadow-lg z-10 p-4 transition-all duration-300 
-      ${isCollapsed ? 'w-20' : 'w-64'}`}
-    >
-      <div className="flex flex-col space-y-6 w-full relative">
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="absolute -right-4 top-6 bg-white rounded-full p-1.5 hover:bg-gray-100 transition-colors shadow-md"
-        >
-          {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
-        </button>
-        <div
-          className={`flex items-center justify-center text-3xl font-bold text-sidebar-active mb-4 transition-all duration-300 
-          ${isCollapsed ? 'text-xl px-0' : ''}`}
-        >
-          {isCollapsed ? (
-            <Image
-              src={logo}
-              alt="ASSMS Logo"
-              width={40}
-              height={40}
-              className="object-contain"
-            />
-          ) : (
-            <div className="flex items-center gap-2">
+    <>
+      <div
+        className={`fixed top-0 left-0 h-screen bg-white shadow-lg z-10 transition-all duration-300 
+        ${isCollapsed ? 'w-20' : 'w-64'}`}
+      >
+        <div className="flex flex-col space-y-6 w-full p-4">
+          <div
+            className={`flex items-center justify-center text-3xl font-bold text-sidebar-active mb-4 transition-all duration-300 
+            ${isCollapsed ? 'text-xl px-0' : ''}`}
+          >
+            {isCollapsed ? (
               <Image
                 src={logo}
                 alt="ASSMS Logo"
@@ -112,19 +98,42 @@ const Sidebar = ({
                 height={40}
                 className="object-contain"
               />
-              <span>ASSMS</span>
-            </div>
-          )}
-        </div>
-        <div className="flex flex-col space-y-2">
-          {items
-            .filter((item) => item.name !== 'User' || role === 'administrator')
-            .map((item, index) => (
-              <SidebarItem key={index} item={item} isCollapsed={isCollapsed} />
-            ))}
+            ) : (
+              <div className="flex items-center gap-2">
+                <Image
+                  src={logo}
+                  alt="ASSMS Logo"
+                  width={40}
+                  height={40}
+                  className="object-contain"
+                />
+                <span>ASSMS</span>
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col space-y-2">
+            {items
+              .filter(
+                (item) => item.name !== 'User' || role === 'administrator'
+              )
+              .map((item, index) => (
+                <SidebarItem
+                  key={index}
+                  item={item}
+                  isCollapsed={isCollapsed}
+                />
+              ))}
+          </div>
         </div>
       </div>
-    </div>
+      <button
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className={`fixed top-20 z-20 bg-white shadow-md rounded-full p-1.5 hover:bg-gray-100 transition-colors
+          ${isCollapsed ? 'left-16' : 'left-60'}`}
+      >
+        {isCollapsed ? <ChevronsRight size={20} /> : <ChevronsLeft size={20} />}
+      </button>
+    </>
   );
 };
 

@@ -26,24 +26,33 @@ const SidebarItem = ({
 }) => {
   const { name, icon: Icon, items, path } = item;
   const [expanded, setExpanded] = useState(false);
+  const [showSubmenu, setShowSubmenu] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
   const isActive = useMemo(() => {
     if (items?.length) {
       if (items.find((item) => item.path === pathname)) {
-        setExpanded(true);
+        if (!isCollapsed) {
+          setExpanded(true);
+        }
         return true;
       }
     }
     return path === pathname;
-  }, [items, path, pathname]);
+  }, [items, path, pathname, isCollapsed]);
 
   return (
-    <div className="mb-1">
+    <div
+      className="mb-1 relative"
+      onMouseEnter={() => isCollapsed && items && setShowSubmenu(true)}
+      onMouseLeave={() => isCollapsed && setShowSubmenu(false)}
+    >
       <div
         onClick={() =>
-          items?.length ? setExpanded(!expanded) : router.push(path)
+          items?.length
+            ? !isCollapsed && setExpanded(!expanded)
+            : router.push(path)
         }
         className={`
           flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer
@@ -72,7 +81,7 @@ const SidebarItem = ({
           />
         )}
         {isCollapsed && (
-          <div className="absolute left-full ml-6 bg-gray-800 text-white px-4 py-2 rounded-md invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 whitespace-nowrap">
+          <div className="absolute left-full ml-6 bg-white shadow-md text-gray-700 px-4 py-2 rounded-md invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 whitespace-nowrap">
             {name}
           </div>
         )}
@@ -81,6 +90,21 @@ const SidebarItem = ({
         <div className="mt-1 mb-1 py-1">
           {items.map((subItem) => (
             <SubMenuItem key={subItem.path} item={subItem} />
+          ))}
+        </div>
+      )}
+      {isCollapsed && showSubmenu && items && items.length > 0 && (
+        <div className="absolute left-full top-0 ml-6 bg-white shadow-md rounded-md py-2 min-w-[160px] z-50">
+          {items.map((subItem) => (
+            <div
+              key={subItem.path}
+              onClick={() => router.push(subItem.path)}
+              className={`px-4 py-2 hover:bg-sidebar-background cursor-pointer
+                ${subItem.path === pathname ? 'bg-sidebar-active text-white' : 'text-gray-700'}
+              `}
+            >
+              {subItem.name}
+            </div>
           ))}
         </div>
       )}
