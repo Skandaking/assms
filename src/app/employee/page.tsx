@@ -1,15 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
 import {
-  PlusCircle,
-  Search,
-  X,
   Edit,
-  Trash2,
-  Printer,
   FileSpreadsheet,
+  PlusCircle,
+  Printer,
+  Trash2,
+  X,
 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface Employee {
   ID: number;

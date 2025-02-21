@@ -1,9 +1,10 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
 import localFont from 'next/font/local';
-import './globals.css';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 import Sidebar from '../components/sidebar';
+import './globals.css';
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -18,9 +19,10 @@ const geistMono = localFont({
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const pathname = usePathname();
   const isLoginOrRootPage = pathname === '/login' || pathname === '/';
   const isLoginPage = pathname === '/login';
@@ -31,9 +33,15 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <div className="flex h-screen w-full bg-gray-100">
-          {!isLoginOrRootPage && <Sidebar />}
+          {!isLoginOrRootPage && (
+            <Sidebar
+              isCollapsed={isCollapsed}
+              setIsCollapsed={setIsCollapsed}
+            />
+          )}
           <div
-            className={`flex flex-col w-full h-full ${isLoginPage ? '' : 'ml-64'} p-4`}
+            className={`flex flex-col w-full h-full transition-all duration-300
+              ${isLoginOrRootPage ? '' : isCollapsed ? 'ml-20' : 'ml-64'} p-4`}
           >
             {children}
           </div>

@@ -2,6 +2,8 @@
 
 import {
   BadgeInfo,
+  ChevronLeft,
+  ChevronRight,
   FileStack,
   LayoutDashboard,
   LucideIcon,
@@ -61,7 +63,13 @@ const items: ISidebarItem[] = [
   },
 ];
 
-const Sidebar = () => {
+const Sidebar = ({
+  isCollapsed,
+  setIsCollapsed,
+}: {
+  isCollapsed: boolean;
+  setIsCollapsed: (value: boolean) => void;
+}) => {
   const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
@@ -70,38 +78,29 @@ const Sidebar = () => {
   }, []);
 
   return (
-    <div className="fixed top-0 left-0 h-screen w-64 bg-white shadow-lg z-10">
-      <div className="flex flex-col h-full">
-        {/* Logo Section */}
-        <div className="p-4 border-b">
-          <div className="text-xl font-bold text-sidebar-active text-center tracking-wide">
-            ASSMS
-          </div>
-          <div className="text-xs text-gray-500 text-center mt-1">
-            Accounting Service Staff Management
-          </div>
+    <div
+      className={`fixed top-0 left-0 h-screen bg-white shadow-lg z-10 p-4 transition-all duration-300 
+      ${isCollapsed ? 'w-20' : 'w-64'}`}
+    >
+      <div className="flex flex-col space-y-6 w-full relative">
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="absolute -right-4 top-6 bg-white rounded-full p-1.5 hover:bg-gray-100 transition-colors shadow-md"
+        >
+          {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+        </button>
+        <div
+          className={`text-center text-3xl font-bold text-sidebar-active mb-4 transition-all duration-300 
+          ${isCollapsed ? 'text-xl px-0' : ''}`}
+        >
+          {isCollapsed ? 'AS' : 'ASSMS'}
         </div>
-
-        {/* Navigation Section */}
-        <div className="flex-1 overflow-y-auto px-3 py-4">
-          <nav className="space-y-1">
-            {items
-              .filter(
-                (item) => item.name !== 'User' || role === 'administrator'
-              )
-              .map((item, index) => (
-                <SidebarItem key={index} item={item} />
-              ))}
-          </nav>
-        </div>
-
-        {/* Footer Section */}
-        <div className="p-3 border-t">
-          <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
-            <span>v1.0.0</span>
-            <span>•</span>
-            <span>{new Date().getFullYear()}</span>
-          </div>
+        <div className="flex flex-col space-y-2">
+          {items
+            .filter((item) => item.name !== 'User' || role === 'administrator')
+            .map((item, index) => (
+              <SidebarItem key={index} item={item} isCollapsed={isCollapsed} />
+            ))}
         </div>
       </div>
     </div>

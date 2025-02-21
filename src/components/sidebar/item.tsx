@@ -17,7 +17,13 @@ interface ISubItem {
   path: string;
 }
 
-const SidebarItem = ({ item }: { item: ISidebarItem }) => {
+const SidebarItem = ({
+  item,
+  isCollapsed,
+}: {
+  item: ISidebarItem;
+  isCollapsed: boolean;
+}) => {
   const { name, icon: Icon, items, path } = item;
   const [expanded, setExpanded] = useState(false);
   const router = useRouter();
@@ -41,7 +47,7 @@ const SidebarItem = ({ item }: { item: ISidebarItem }) => {
         }
         className={`
           flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer
-          transition-all duration-200 select-none
+          transition-all duration-200 select-none group relative
           ${
             isActive
               ? 'bg-sidebar-active text-white'
@@ -54,9 +60,9 @@ const SidebarItem = ({ item }: { item: ISidebarItem }) => {
             size={20}
             className={isActive ? 'text-white' : 'text-sidebar-iconColor'}
           />
-          <span className="font-medium">{name}</span>
+          {!isCollapsed && <span className="font-medium">{name}</span>}
         </div>
-        {items && items.length > 0 && (
+        {!isCollapsed && items && items.length > 0 && (
           <ChevronDown
             size={18}
             className={`transition-transform duration-200
@@ -65,8 +71,13 @@ const SidebarItem = ({ item }: { item: ISidebarItem }) => {
             `}
           />
         )}
+        {isCollapsed && (
+          <div className="absolute left-full ml-6 bg-gray-800 text-white px-4 py-2 rounded-md invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 whitespace-nowrap">
+            {name}
+          </div>
+        )}
       </div>
-      {expanded && items && items.length > 0 && (
+      {!isCollapsed && expanded && items && items.length > 0 && (
         <div className="mt-1 mb-1 py-1">
           {items.map((subItem) => (
             <SubMenuItem key={subItem.path} item={subItem} />
