@@ -25,7 +25,6 @@ export default function RootLayout({
   const [isCollapsed, setIsCollapsed] = useState(false);
   const pathname = usePathname();
   const isLoginOrRootPage = pathname === '/login' || pathname === '/';
-  const isLoginPage = pathname === '/login';
 
   return (
     <html lang="en">

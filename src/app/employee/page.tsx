@@ -111,19 +111,9 @@ const Employee = () => {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
     null
   );
-  const [currentDate, setCurrentDate] = useState(new Date());
 
   useEffect(() => {
     fetchEmployees();
-  }, []);
-
-  useEffect(() => {
-    // Update once a day
-    const timer = setInterval(() => {
-      setCurrentDate(new Date());
-    }, 86400000); // 24 hours in milliseconds
-
-    return () => clearInterval(timer);
   }, []);
 
   const fetchEmployees = async () => {
@@ -180,7 +170,9 @@ const Employee = () => {
       );
     } catch (error) {
       console.error('Error adding/updating employee:', error);
-      alert(`Failed to add/update employee. Error: ${error.message}`);
+      alert(
+        `Failed to add/update employee. Error: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   };
 
@@ -233,7 +225,9 @@ const Employee = () => {
         alert('Employee deleted successfully!');
       } catch (error) {
         console.error('Error deleting employee:', error);
-        alert(`Failed to delete employee. Error: ${error.message}`);
+        alert(
+          `Failed to delete employee. Error: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     }
   };
@@ -279,7 +273,7 @@ const Employee = () => {
 
   const handleExportToExcel = () => {
     // Helper function to escape CSV values
-    const escapeCSV = (value: any): string => {
+    const escapeCSV = (value: string | number | null | undefined): string => {
       if (value === null || value === undefined) return '';
       const stringValue = String(value);
       if (
