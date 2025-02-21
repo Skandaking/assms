@@ -1,6 +1,7 @@
 'use client';
 
 import logo from '@/app/logo.png';
+import { LogoutDialog } from '@/components/logout-dialog';
 import {
   BadgeInfo,
   ChevronsLeft,
@@ -82,7 +83,7 @@ const Sidebar = ({
   return (
     <>
       <div
-        className={`fixed top-0 left-0 h-screen bg-white shadow-lg z-10 transition-all duration-300 
+        className={`fixed top-0 left-0 h-screen bg-white shadow-lg z-10 transition-all duration-300 flex flex-col justify-between
         ${isCollapsed ? 'w-20' : 'w-64'}`}
       >
         <div className="flex flex-col space-y-6 w-full p-4">
@@ -124,6 +125,10 @@ const Sidebar = ({
                 />
               ))}
           </div>
+        </div>
+
+        <div className="p-4">
+          <LogoutDialog isCollapsed={isCollapsed} />
         </div>
       </div>
       <button
