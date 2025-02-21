@@ -1,5 +1,6 @@
 'use client';
 
+import logo from '@/app/logo.png';
 import {
   BadgeInfo,
   ChevronLeft,
@@ -10,6 +11,7 @@ import {
   UserPlus,
   Users,
 } from 'lucide-react';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import SidebarItem from './item';
 
@@ -90,10 +92,29 @@ const Sidebar = ({
           {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
         </button>
         <div
-          className={`text-center text-3xl font-bold text-sidebar-active mb-4 transition-all duration-300 
+          className={`flex items-center justify-center text-3xl font-bold text-sidebar-active mb-4 transition-all duration-300 
           ${isCollapsed ? 'text-xl px-0' : ''}`}
         >
-          {isCollapsed ? 'AS' : 'ASSMS'}
+          {isCollapsed ? (
+            <Image
+              src={logo}
+              alt="ASSMS Logo"
+              width={40}
+              height={40}
+              className="object-contain"
+            />
+          ) : (
+            <div className="flex items-center gap-2">
+              <Image
+                src={logo}
+                alt="ASSMS Logo"
+                width={40}
+                height={40}
+                className="object-contain"
+              />
+              <span>ASSMS</span>
+            </div>
+          )}
         </div>
         <div className="flex flex-col space-y-2">
           {items
