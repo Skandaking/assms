@@ -1,5 +1,7 @@
 'use client';
 
+import AppHeader from '@/components/layout/AppHeader';
+import { SidebarProvider } from '@/context/SidebarContext';
 import localFont from 'next/font/local';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
@@ -31,20 +33,25 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="flex h-screen w-full bg-gray-100">
-          {!isLoginOrRootPage && (
-            <Sidebar
-              isCollapsed={isCollapsed}
-              setIsCollapsed={setIsCollapsed}
-            />
-          )}
-          <div
-            className={`flex flex-col w-full h-full transition-all duration-300
-              ${isLoginOrRootPage ? '' : isCollapsed ? 'ml-20' : 'ml-64'} p-4`}
-          >
-            {children}
+        <SidebarProvider>
+          <div className="flex h-screen w-full bg-gray-100">
+            {!isLoginOrRootPage && (
+              <>
+                <Sidebar
+                  isCollapsed={isCollapsed}
+                  setIsCollapsed={setIsCollapsed}
+                />
+                <AppHeader isCollapsed={isCollapsed} />
+              </>
+            )}
+            <div
+              className={`flex flex-col w-full h-full transition-all duration-300 pt-16
+                ${isLoginOrRootPage ? '' : isCollapsed ? 'ml-20' : 'ml-64'}`}
+            >
+              {children}
+            </div>
           </div>
-        </div>
+        </SidebarProvider>
       </body>
     </html>
   );
