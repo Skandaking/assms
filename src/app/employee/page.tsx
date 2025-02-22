@@ -1,13 +1,7 @@
 'use client';
 
-import {
-  Edit,
-  FileSpreadsheet,
-  PlusCircle,
-  Printer,
-  Trash2,
-  X,
-} from 'lucide-react';
+import PageHeader from '@/components/layout/PageHeader';
+import { Edit, Trash2, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
 interface Employee {
@@ -392,52 +386,33 @@ const Employee = () => {
 
   return (
     <div className="flex flex-col h-screen">
-      <div className="flex-none bg-white shadow-md p-6 sticky top-0 z-10">
-        <h1 className="text-3xl font-bold mb-6">Employee Management</h1>
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center space-x-2">
-            <input
-              type="text"
-              placeholder="Search by name, employee number, or duty station..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="p-2 border rounded-md w-96"
-            />
-          </div>
-          <div className="flex space-x-2">
-            <button
-              onClick={handlePrint}
-              className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 flex items-center"
-            >
-              <Printer className="h-4 w-4 mr-2" /> Print
-            </button>
-            <button
-              onClick={handleExportToExcel}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 flex items-center"
-            >
-              <FileSpreadsheet className="h-4 w-4 mr-2" /> Export to Excel
-            </button>
-            <button
-              onClick={() => setShowAddForm(true)}
-              className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 flex items-center"
-            >
-              <PlusCircle className="h-4 w-4 mr-2" /> Add Employee
-            </button>
-          </div>
-        </div>
+      <PageHeader
+        title="Employees"
+        searchTerm={searchTerm}
+        onSearch={(e) => setSearchTerm(e.target.value)}
+        searchPlaceholder="Search by name, employee number or duty station..."
+        showControls
+        onPrint={handlePrint}
+        onExport={handleExportToExcel}
+        onAdd={() => setShowAddForm(true)}
+      />
 
+      <div className="flex-grow pt-32 px-6">
         {showAddForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-20">
-            <div className="bg-white p-6 rounded-lg shadow-xl w-3/4 max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center">
+            <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto z-50">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold mb-4">
-                  {newEmployee.ID ? 'Update Employee' : 'Add Employee'}
+                <h2 className="text-2xl font-bold">
+                  {newEmployee.ID ? 'Edit Employee' : 'Add New Employee'}
                 </h2>
                 <button
-                  onClick={clearForm}
+                  onClick={() => {
+                    setShowAddForm(false);
+                    clearForm();
+                  }}
                   className="text-gray-500 hover:text-gray-700"
                 >
-                  <X size={24} />
+                  <X className="h-6 w-6" />
                 </button>
               </div>
               <form
