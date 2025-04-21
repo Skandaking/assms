@@ -68,16 +68,26 @@ const Reports = () => {
       const data = await response.json();
 
       const values = {
-        grades: new Set(data.map((emp: Employee) => emp.GRADE).filter(Boolean)),
-        votes: new Set(data.map((emp: Employee) => emp.VOTE).filter(Boolean)),
+        grades: new Set(
+          data.map((emp: Employee) => emp.GRADE).filter(Boolean) as string[]
+        ),
+        votes: new Set(
+          data.map((emp: Employee) => emp.VOTE).filter(Boolean) as string[]
+        ),
         stations: new Set(
-          data.map((emp: Employee) => emp.CURRENT_DUTY_STATION).filter(Boolean)
+          data
+            .map((emp: Employee) => emp.CURRENT_DUTY_STATION)
+            .filter(Boolean) as string[]
         ),
         costCenters: new Set(
-          data.map((emp: Employee) => emp.COST_CENTER).filter(Boolean)
+          data
+            .map((emp: Employee) => emp.COST_CENTER)
+            .filter(Boolean) as string[]
         ),
         districts: new Set(
-          data.map((emp: Employee) => emp.DUTY_STATION_DISTRICT).filter(Boolean)
+          data
+            .map((emp: Employee) => emp.DUTY_STATION_DISTRICT)
+            .filter(Boolean) as string[]
         ),
       };
 
@@ -112,7 +122,7 @@ const Reports = () => {
 
       if (filtered.length === 0) {
         const activeFilters = Object.entries(filters)
-          .filter(([_, value]) => value)
+          .filter(([, value]) => value)
           .map(([key, value]) => `${key}: ${value}`)
           .join(', ');
         setNoResultsMessage(`No results found for ${activeFilters}`);
@@ -129,8 +139,8 @@ const Reports = () => {
     }
   };
 
-  const mapFilterToEmployeeField = (filterKey: string): string => {
-    const mapping: { [key: string]: string } = {
+  const mapFilterToEmployeeField = (filterKey: string): keyof Employee => {
+    const mapping: { [key: string]: keyof Employee } = {
       grade: 'GRADE',
       vote: 'VOTE',
       currentStation: 'CURRENT_DUTY_STATION',
@@ -248,11 +258,13 @@ const Reports = () => {
                 className="w-full p-2 border rounded-md"
               >
                 <option value="">Select Grade</option>
-                {[...uniqueValues.grades].sort().map((grade) => (
-                  <option key={grade} value={grade}>
-                    {grade}
-                  </option>
-                ))}
+                {Array.from(uniqueValues.grades)
+                  .sort()
+                  .map((grade) => (
+                    <option key={grade} value={grade}>
+                      {grade}
+                    </option>
+                  ))}
               </select>
             </div>
           </div>
@@ -277,11 +289,13 @@ const Reports = () => {
                 className="w-full p-2 border rounded-md"
               >
                 <option value="">Select Vote</option>
-                {[...uniqueValues.votes].sort().map((vote) => (
-                  <option key={vote} value={vote}>
-                    {vote}
-                  </option>
-                ))}
+                {Array.from(uniqueValues.votes)
+                  .sort()
+                  .map((vote) => (
+                    <option key={vote} value={vote}>
+                      {vote}
+                    </option>
+                  ))}
               </select>
             </div>
           </div>
@@ -309,11 +323,13 @@ const Reports = () => {
                 className="w-full p-2 border rounded-md"
               >
                 <option value="">Select Current Station</option>
-                {[...uniqueValues.stations].sort().map((station) => (
-                  <option key={station} value={station}>
-                    {station}
-                  </option>
-                ))}
+                {Array.from(uniqueValues.stations)
+                  .sort()
+                  .map((station) => (
+                    <option key={station} value={station}>
+                      {station}
+                    </option>
+                  ))}
               </select>
             </div>
           </div>
@@ -341,11 +357,13 @@ const Reports = () => {
                 className="w-full p-2 border rounded-md"
               >
                 <option value="">Select Cost Center</option>
-                {[...uniqueValues.costCenters].sort().map((center) => (
-                  <option key={center} value={center}>
-                    {center}
-                  </option>
-                ))}
+                {Array.from(uniqueValues.costCenters)
+                  .sort()
+                  .map((center) => (
+                    <option key={center} value={center}>
+                      {center}
+                    </option>
+                  ))}
               </select>
             </div>
           </div>
@@ -370,11 +388,13 @@ const Reports = () => {
                 className="w-full p-2 border rounded-md"
               >
                 <option value="">Select District</option>
-                {[...uniqueValues.districts].sort().map((district) => (
-                  <option key={district} value={district}>
-                    {district}
-                  </option>
-                ))}
+                {Array.from(uniqueValues.districts)
+                  .sort()
+                  .map((district) => (
+                    <option key={district} value={district}>
+                      {district}
+                    </option>
+                  ))}
               </select>
             </div>
           </div>
