@@ -23,7 +23,8 @@ const Login = () => {
     const data = await response.json();
 
     if (response.ok) {
-      localStorage.setItem('role', data.role);
+      // Store user data in localStorage
+      localStorage.setItem('user', JSON.stringify(data));
       router.push('/home');
     } else {
       setError(data.message);

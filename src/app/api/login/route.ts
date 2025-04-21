@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import { executeQuery } from '@/app/lib/db';
+import { cookies } from 'next/headers';
 
 export async function POST(request: Request) {
   const { username, password } = await request.json();
 
   try {
-    const rows: any = await executeQuery(
+    const rows: any[] = await executeQuery(
       'SELECT * FROM users WHERE username = ?',
       [username]
     );
@@ -26,7 +27,19 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({ role: user.role });
+    // Set a cookie with the user ID
+    const cookieStore = cookies();
+    cookieStore.set('userId', String(user.id), {
+      httpOnly: true,
+      sameSite: 'strict',
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+    });
+
+    // Return user data (excluding password)
+    const { password: _, ...userData } = user;
+
+    return NextResponse.json(userData);
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(
