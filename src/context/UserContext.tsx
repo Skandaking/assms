@@ -35,7 +35,35 @@ export function UserProvider({ children }: { children: ReactNode }) {
       const storedUser = localStorage.getItem('user');
 
       if (storedUser) {
-        setUser(JSON.parse(storedUser));
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          console.log('Stored user data:', parsedUser);
+
+          // Check if the user data has the required fields
+          if (!parsedUser.firstname || !parsedUser.lastname) {
+            console.warn(
+              'User data missing firstname or lastname:',
+              parsedUser
+            );
+
+            // Try to recover by fetching from API
+            const response = await fetch('/api/users/current');
+            if (response.ok) {
+              const userData = await response.json();
+              console.log('Fetched user data from API:', userData);
+              setUser(userData);
+              localStorage.setItem('user', JSON.stringify(userData));
+            } else {
+              setUser(parsedUser); // Use what we have, even if incomplete
+            }
+          } else {
+            setUser(parsedUser);
+          }
+        } catch (error) {
+          console.error('Error parsing stored user data:', error);
+          localStorage.removeItem('user'); // Clear invalid data
+          setUser(null);
+        }
         setLoading(false);
         return;
       }
@@ -44,16 +72,19 @@ export function UserProvider({ children }: { children: ReactNode }) {
       const response = await fetch('/api/users/current');
 
       if (!response.ok) {
+        console.warn('Failed to fetch current user:', response.status);
         setUser(null);
         setLoading(false);
         return;
       }
 
       const userData = await response.json();
+      console.log('Fetched user data from API:', userData);
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
     } catch (error) {
       console.error('Error fetching user profile:', error);
+      setUser(null);
     } finally {
       setLoading(false);
     }

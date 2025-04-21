@@ -21,6 +21,8 @@ export async function POST(request: Request) {
       [username]
     );
 
+    console.log('Login query result:', result);
+
     const rows = Array.isArray(result) ? (result as UserRow[]) : [];
 
     if (rows.length === 0) {
@@ -31,6 +33,7 @@ export async function POST(request: Request) {
     }
 
     const user = rows[0];
+    console.log('User found:', { ...user, password: '***' });
 
     if (user.password !== password) {
       return NextResponse.json(
@@ -51,6 +54,8 @@ export async function POST(request: Request) {
     // Return user data (excluding password)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...userData } = user;
+
+    console.log('Returning user data:', userData);
 
     return NextResponse.json(userData);
   } catch (error) {

@@ -11,10 +11,15 @@ interface AppHeaderProps {
 }
 
 const AppHeader = ({ isCollapsed }: AppHeaderProps) => {
-  const { user, loading } = useUser();
+  const { user, loading, fetchUserProfile } = useUser();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  // Trigger a re-fetch when component mounts
+  useEffect(() => {
+    fetchUserProfile();
+  }, [fetchUserProfile]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -31,6 +36,26 @@ const AppHeader = ({ isCollapsed }: AppHeaderProps) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  // Get display name from user data, with fallbacks
+  const getDisplayName = () => {
+    if (!user) return 'Guest';
+
+    // If we have firstname and lastname, use them
+    if (user.firstname && user.lastname) {
+      return `${user.firstname} ${user.lastname}`;
+    }
+
+    // If we have only one, use it
+    if (user.firstname) return user.firstname;
+    if (user.lastname) return user.lastname;
+
+    // If we have username, use it
+    if (user.username) return user.username;
+
+    // Last resort
+    return `User #${user.id}`;
+  };
 
   const handleLogout = async () => {
     // Clear user data from localStorage
@@ -65,9 +90,7 @@ const AppHeader = ({ isCollapsed }: AppHeaderProps) => {
                       <User className="h-5 w-5 text-gray-600" />
                     </div>
                     <div className="ml-2">
-                      <p className="text-sm font-medium">
-                        {user ? `${user.firstname} ${user.lastname}` : 'Guest'}
-                      </p>
+                      <p className="text-sm font-medium">{getDisplayName()}</p>
                       <p className="text-xs text-gray-500">
                         {user ? user.role : 'Not logged in'}
                       </p>
