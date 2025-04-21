@@ -1,6 +1,16 @@
 import { NextResponse } from 'next/server';
 import { executeQuery } from '@/app/lib/db';
 import { cookies } from 'next/headers';
+import { RowDataPacket, ResultSetHeader } from 'mysql2';
+
+interface UserRow extends RowDataPacket {
+  id: number;
+  firstname: string;
+  lastname: string;
+  username: string;
+  password?: string;
+  role: string;
+}
 
 // Get user by ID
 export async function GET(
@@ -20,10 +30,12 @@ export async function GET(
   }
 
   try {
-    const rows: any[] = await executeQuery(
+    const result = await executeQuery(
       'SELECT id, firstname, lastname, username, role FROM users WHERE id = ?',
       [params.id]
     );
+
+    const rows = Array.isArray(result) ? (result as UserRow[]) : [];
 
     if (rows.length === 0) {
       return NextResponse.json({ message: 'User not found' }, { status: 404 });
@@ -61,19 +73,21 @@ export async function PUT(
   try {
     // If user is trying to change password, verify the current password
     if (newPassword) {
-      const user: any[] = await executeQuery(
+      const result = await executeQuery(
         'SELECT password FROM users WHERE id = ?',
         [params.id]
       );
 
-      if (user.length === 0) {
+      const rows = Array.isArray(result) ? (result as UserRow[]) : [];
+
+      if (rows.length === 0) {
         return NextResponse.json(
           { message: 'User not found' },
           { status: 404 }
         );
       }
 
-      if (user[0].password !== currentPassword) {
+      if (rows[0].password !== currentPassword) {
         return NextResponse.json(
           { message: 'Current password is incorrect' },
           { status: 400 }
@@ -84,10 +98,12 @@ export async function PUT(
       userData.password = newPassword;
     }
 
-    const result: any = await executeQuery('UPDATE users SET ? WHERE id = ?', [
+    const updateResult = await executeQuery('UPDATE users SET ? WHERE id = ?', [
       userData,
       params.id,
     ]);
+
+    const result = updateResult as ResultSetHeader;
 
     if (result.affectedRows === 0) {
       return NextResponse.json(
@@ -97,10 +113,14 @@ export async function PUT(
     }
 
     // Get the updated user data
-    const updatedUser: any[] = await executeQuery(
+    const userResult = await executeQuery(
       'SELECT id, firstname, lastname, username, role FROM users WHERE id = ?',
       [params.id]
     );
+
+    const updatedUser = Array.isArray(userResult)
+      ? (userResult as UserRow[])
+      : [];
 
     return NextResponse.json(updatedUser[0]);
   } catch (error) {
@@ -119,12 +139,24 @@ export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const { id } = params;
+  const cookieStore = cookies();
+  const userId = cookieStore.get('userId');
 
-  const connection = await mysql.createConnection(dbConfig);
+  // Basic admin permission check (in a real app, you'd check if the user is an admin)
+  if (!userId) {
+    return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
+  }
 
   try {
-    await connection.execute('DELETE FROM users WHERE id = ?', [id]);
+    const result = await executeQuery('DELETE FROM users WHERE id = ?', [
+      params.id,
+    ]);
+    const deleteResult = result as ResultSetHeader;
+
+    if (deleteResult.affectedRows === 0) {
+      return NextResponse.json({ message: 'User not found' }, { status: 404 });
+    }
+
     return NextResponse.json({ message: 'User deleted successfully' });
   } catch (error) {
     console.error('Error deleting user:', error);
@@ -132,7 +164,5 @@ export async function DELETE(
       { message: 'An error occurred while deleting the user' },
       { status: 500 }
     );
-  } finally {
-    await connection.end();
   }
 }

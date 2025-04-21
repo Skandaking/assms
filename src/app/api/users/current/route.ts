@@ -1,6 +1,15 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { executeQuery } from '@/app/lib/db';
+import { RowDataPacket } from 'mysql2';
+
+interface UserRow extends RowDataPacket {
+  id: number;
+  firstname: string;
+  lastname: string;
+  username: string;
+  role: string;
+}
 
 export async function GET() {
   // In a real app, you'd use the session token to get the user ID
@@ -13,10 +22,12 @@ export async function GET() {
   }
 
   try {
-    const rows: any = await executeQuery(
+    const result = await executeQuery(
       'SELECT id, firstname, lastname, username, role FROM users WHERE id = ?',
       [userId.value]
     );
+
+    const rows = Array.isArray(result) ? (result as UserRow[]) : [];
 
     if (rows.length === 0) {
       return NextResponse.json({ message: 'User not found' }, { status: 404 });

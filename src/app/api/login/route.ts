@@ -1,15 +1,27 @@
 import { NextResponse } from 'next/server';
 import { executeQuery } from '@/app/lib/db';
 import { cookies } from 'next/headers';
+import { RowDataPacket } from 'mysql2';
+
+interface UserRow extends RowDataPacket {
+  id: number;
+  username: string;
+  password: string;
+  firstname: string;
+  lastname: string;
+  role: string;
+}
 
 export async function POST(request: Request) {
   const { username, password } = await request.json();
 
   try {
-    const rows: any[] = await executeQuery(
+    const result = await executeQuery(
       'SELECT * FROM users WHERE username = ?',
       [username]
     );
+
+    const rows = Array.isArray(result) ? (result as UserRow[]) : [];
 
     if (rows.length === 0) {
       return NextResponse.json(
@@ -37,6 +49,7 @@ export async function POST(request: Request) {
     });
 
     // Return user data (excluding password)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...userData } = user;
 
     return NextResponse.json(userData);
