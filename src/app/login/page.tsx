@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { User, Lock, ArrowRight } from 'lucide-react';
+import Image from 'next/image';
+import logo from '../../app/logo.png';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -46,9 +48,13 @@ export default function LoginPage() {
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center space-x-3">
             <div className="relative w-10 h-10 overflow-hidden rounded-full border border-gray-300">
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-700 font-bold">AS</span>
-              </div>
+              <Image
+                src={logo}
+                alt="AS Logo"
+                width={40}
+                height={40}
+                className="object-contain"
+              />
             </div>
             <h1 className="text-xl font-bold text-gray-800">
               Accounting Service Staff Management System
