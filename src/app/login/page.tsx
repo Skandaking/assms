@@ -41,9 +41,9 @@ const Login = () => {
   };
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-white overflow-hidden">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+    <div className="fixed inset-0 flex flex-col bg-white">
+      {/* Header - fixed at the top */}
+      <header className="bg-white border-b border-gray-200 w-full">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center space-x-3">
             <div className="relative w-10 h-10 overflow-hidden rounded-full border border-gray-300">
@@ -61,8 +61,8 @@ const Login = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow flex items-center justify-center px-4 bg-gray-100">
-        <div className="w-full max-w-md">
+      <main className="flex-grow flex items-center justify-center bg-gray-100">
+        <div className="w-full max-w-md px-4">
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             {/* Login Form */}
             <div className="p-8">
