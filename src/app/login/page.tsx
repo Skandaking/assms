@@ -1,32 +1,15 @@
 'use client';
-import logo from '@/app/logo.png';
-import { Lock, User, ArrowRight } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import React, { useState, useEffect } from 'react';
 
-const Login = () => {
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { User, Lock, ArrowRight } from 'lucide-react';
+
+export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-
-  // Add styling to ensure no margins are present on document body
-  useEffect(() => {
-    // Add custom styling to the body when component mounts
-    document.body.style.margin = '0';
-    document.body.style.padding = '0';
-    document.documentElement.style.margin = '0';
-    document.documentElement.style.padding = '0';
-
-    // Clean up function to remove styles when component unmounts
-    return () => {
-      document.body.style.margin = '';
-      document.body.style.padding = '';
-      document.documentElement.style.margin = '';
-      document.documentElement.style.padding = '';
-    };
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,32 +26,29 @@ const Login = () => {
       const data = await response.json();
 
       if (response.ok) {
-        // Store user data in localStorage
         localStorage.setItem('user', JSON.stringify(data));
         router.push('/home');
       } else {
-        setError(data.message);
+        setError(data.message || 'Login failed');
       }
-    } catch (error) {
+    } catch (err) {
       setError('Connection error. Please try again.');
-      console.error('Login error:', error);
+      console.error('Login error:', err);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-white overflow-hidden m-0 p-0">
-      {/* Header */}
+    <div className="flex flex-col min-h-screen bg-white">
+      {/* Header - absolutely positioned to ensure no space above */}
       <header className="bg-white border-b border-gray-200 w-full">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center space-x-3">
             <div className="relative w-10 h-10 overflow-hidden rounded-full border border-gray-300">
-              <img
-                src={logo.src}
-                alt="ASSMS Logo"
-                className="object-cover w-full h-full"
-              />
+              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                <span className="text-gray-700 font-bold">AS</span>
+              </div>
             </div>
             <h1 className="text-xl font-bold text-gray-800">
               Accounting Service Staff Management System
@@ -81,7 +61,6 @@ const Login = () => {
       <main className="flex-grow flex items-center justify-center px-4 bg-gray-100">
         <div className="w-full max-w-md">
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            {/* Login Form */}
             <div className="p-8">
               <div className="mb-6 text-center">
                 <h2 className="text-2xl font-bold text-gray-800 mb-2">
@@ -220,13 +199,11 @@ const Login = () => {
               Management System. All rights reserved.
             </p>
             <p className="text-xs mt-1">
-              Secure login protected by enterprise-grade encryption
+              Secure login protected by CodeTech &copy; Securities
             </p>
           </div>
         </div>
       </footer>
     </div>
   );
-};
-
-export default Login;
+}
