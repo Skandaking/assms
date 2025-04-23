@@ -48,7 +48,7 @@ export default function RootLayout({
               )}
               <div
                 className={`flex flex-col w-full h-full transition-all duration-300 pt-16
-                  ${isLoginOrRootPage ? '' : isCollapsed ? 'ml-20' : 'ml-64'}`}
+                ${isLoginOrRootPage ? '' : isCollapsed ? 'ml-20' : 'ml-64'}`}
               >
                 {children}
               </div>

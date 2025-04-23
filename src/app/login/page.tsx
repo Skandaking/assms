@@ -2,7 +2,7 @@
 import logo from '@/app/logo.png';
 import { Lock, User, ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -10,6 +10,23 @@ const Login = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  // Add styling to ensure no margins are present on document body
+  useEffect(() => {
+    // Add custom styling to the body when component mounts
+    document.body.style.margin = '0';
+    document.body.style.padding = '0';
+    document.documentElement.style.margin = '0';
+    document.documentElement.style.padding = '0';
+
+    // Clean up function to remove styles when component unmounts
+    return () => {
+      document.body.style.margin = '';
+      document.body.style.padding = '';
+      document.documentElement.style.margin = '';
+      document.documentElement.style.padding = '';
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,8 +58,8 @@ const Login = () => {
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-white">
-      {/* Header - fixed at the top */}
+    <div className="h-screen w-screen flex flex-col bg-white overflow-hidden m-0 p-0">
+      {/* Header */}
       <header className="bg-white border-b border-gray-200 w-full">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center space-x-3">
@@ -61,8 +78,8 @@ const Login = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow flex items-center justify-center bg-gray-100">
-        <div className="w-full max-w-md px-4">
+      <main className="flex-grow flex items-center justify-center px-4 bg-gray-100">
+        <div className="w-full max-w-md">
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             {/* Login Form */}
             <div className="p-8">
