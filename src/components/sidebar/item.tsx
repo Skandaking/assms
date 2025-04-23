@@ -3,7 +3,6 @@
 import { ChevronDown, LucideIcon } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
-import SubMenuItem from './sub-item';
 
 interface ISidebarItem {
   name: string;
@@ -42,6 +41,32 @@ const SidebarItem = ({
     return path === pathname;
   }, [items, path, pathname, isCollapsed]);
 
+  const handleItemClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (items?.length) {
+      if (!isCollapsed) {
+        setExpanded(!expanded);
+      }
+    } else {
+      // Use setTimeout to avoid React state update conflicts
+      setTimeout(() => {
+        router.push(path);
+      }, 10);
+    }
+  };
+
+  const handleSubItemClick = (subPath: string) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Use setTimeout to avoid React state update conflicts
+    setTimeout(() => {
+      router.push(subPath);
+    }, 10);
+  };
+
   return (
     <div
       className="mb-1 relative"
@@ -49,11 +74,7 @@ const SidebarItem = ({
       onMouseLeave={() => isCollapsed && setShowSubmenu(false)}
     >
       <div
-        onClick={() =>
-          items?.length
-            ? !isCollapsed && setExpanded(!expanded)
-            : router.push(path)
-        }
+        onClick={handleItemClick}
         className={`
           flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer
           transition-all duration-200 select-none group relative
@@ -81,7 +102,7 @@ const SidebarItem = ({
           />
         )}
         {isCollapsed && (
-          <div className="absolute left-full ml-6 bg-white shadow-md text-gray-700 px-4 py-2 rounded-md invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 whitespace-nowrap">
+          <div className="absolute left-full ml-6 bg-white shadow-md text-gray-700 px-4 py-2 rounded-md invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 whitespace-nowrap z-50">
             {name}
           </div>
         )}
@@ -89,7 +110,15 @@ const SidebarItem = ({
       {!isCollapsed && expanded && items && items.length > 0 && (
         <div className="mt-1 mb-1 py-1">
           {items.map((subItem) => (
-            <SubMenuItem key={subItem.path} item={subItem} />
+            <div
+              key={subItem.path}
+              onClick={handleSubItemClick(subItem.path)}
+              className={`px-4 py-2 pl-10 hover:bg-sidebar-background cursor-pointer rounded-lg mx-2
+                ${subItem.path === pathname ? 'bg-sidebar-active text-white' : 'text-gray-700'}
+              `}
+            >
+              {subItem.name}
+            </div>
           ))}
         </div>
       )}
@@ -98,7 +127,7 @@ const SidebarItem = ({
           {items.map((subItem) => (
             <div
               key={subItem.path}
-              onClick={() => router.push(subItem.path)}
+              onClick={handleSubItemClick(subItem.path)}
               className={`px-4 py-2 hover:bg-sidebar-background cursor-pointer
                 ${subItem.path === pathname ? 'bg-sidebar-active text-white' : 'text-gray-700'}
               `}

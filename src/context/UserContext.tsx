@@ -5,6 +5,7 @@ import {
   useContext,
   useEffect,
   useState,
+  useCallback,
 } from 'react';
 
 export interface User {
@@ -27,12 +28,22 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = useCallback(async () => {
+    if (loading && isInitialized) return; // Prevent multiple simultaneous fetches
+
     setLoading(true);
     try {
       // First check if we have the user stored in localStorage
-      const storedUser = localStorage.getItem('user');
+      let storedUser;
+
+      // Use try-catch for localStorage access (might not be available in SSR)
+      try {
+        storedUser = localStorage.getItem('user');
+      } catch (e) {
+        console.warn('Unable to access localStorage:', e);
+      }
 
       if (storedUser) {
         try {
@@ -52,7 +63,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
               const userData = await response.json();
               console.log('Fetched user data from API:', userData);
               setUser(userData);
-              localStorage.setItem('user', JSON.stringify(userData));
+
+              try {
+                localStorage.setItem('user', JSON.stringify(userData));
+              } catch (e) {
+                console.warn('Unable to write to localStorage:', e);
+              }
             } else {
               setUser(parsedUser); // Use what we have, even if incomplete
             }
@@ -61,10 +77,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
           }
         } catch (error) {
           console.error('Error parsing stored user data:', error);
-          localStorage.removeItem('user'); // Clear invalid data
+          try {
+            localStorage.removeItem('user'); // Clear invalid data
+          } catch (e) {
+            console.warn('Unable to remove from localStorage:', e);
+          }
           setUser(null);
         }
         setLoading(false);
+        setIsInitialized(true);
         return;
       }
 
@@ -75,24 +96,34 @@ export function UserProvider({ children }: { children: ReactNode }) {
         console.warn('Failed to fetch current user:', response.status);
         setUser(null);
         setLoading(false);
+        setIsInitialized(true);
         return;
       }
 
       const userData = await response.json();
       console.log('Fetched user data from API:', userData);
       setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
+
+      try {
+        localStorage.setItem('user', JSON.stringify(userData));
+      } catch (e) {
+        console.warn('Unable to write to localStorage:', e);
+      }
     } catch (error) {
       console.error('Error fetching user profile:', error);
       setUser(null);
     } finally {
       setLoading(false);
+      setIsInitialized(true);
     }
-  };
+  }, [loading, isInitialized]);
 
+  // Only run on initial mount
   useEffect(() => {
-    fetchUserProfile();
-  }, []);
+    if (!isInitialized) {
+      fetchUserProfile();
+    }
+  }, [fetchUserProfile, isInitialized]);
 
   return (
     <UserContext.Provider value={{ user, loading, setUser, fetchUserProfile }}>

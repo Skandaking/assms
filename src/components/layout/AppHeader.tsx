@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { ChevronDown, LogOut, Settings, User } from 'lucide-react';
 import { useUser } from '@/context/UserContext';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 interface AppHeaderProps {
@@ -11,15 +10,10 @@ interface AppHeaderProps {
 }
 
 const AppHeader = ({ isCollapsed }: AppHeaderProps) => {
-  const { user, loading, fetchUserProfile } = useUser();
+  const { user, loading } = useUser();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-
-  // Trigger a re-fetch when component mounts
-  useEffect(() => {
-    fetchUserProfile();
-  }, [fetchUserProfile]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -59,13 +53,30 @@ const AppHeader = ({ isCollapsed }: AppHeaderProps) => {
 
   const handleLogout = async () => {
     // Clear user data from localStorage
-    localStorage.removeItem('user');
+    try {
+      localStorage.removeItem('user');
+    } catch (e) {
+      console.warn('Error removing from localStorage:', e);
+    }
 
     // Call logout API to clear cookies
-    await fetch('/api/logout', { method: 'POST' });
+    try {
+      await fetch('/api/logout', { method: 'POST' });
+    } catch (e) {
+      console.error('Error logging out:', e);
+    }
 
     // Redirect to login page
     router.push('/login');
+  };
+
+  const handleProfileClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setDropdownOpen(false);
+    // Use setTimeout to allow the dropdown to close before navigation
+    setTimeout(() => {
+      router.push('/profile');
+    }, 10);
   };
 
   return (
@@ -102,14 +113,13 @@ const AppHeader = ({ isCollapsed }: AppHeaderProps) => {
                 {/* User dropdown */}
                 {dropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border">
-                    <Link
-                      href="/profile"
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      onClick={() => setDropdownOpen(false)}
+                    <button
+                      onClick={handleProfileClick}
+                      className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
                       <Settings className="h-4 w-4 mr-2" />
                       Profile Settings
-                    </Link>
+                    </button>
                     <button
                       onClick={handleLogout}
                       className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
