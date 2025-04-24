@@ -1,6 +1,5 @@
 'use client';
 
-import PageHeader from '@/components/layout/PageHeader';
 import { Edit, Trash2, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
@@ -385,648 +384,630 @@ const Employee = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen">
-      <PageHeader
-        title="Employees"
-        searchTerm={searchTerm}
-        onSearch={(e) => setSearchTerm(e.target.value)}
-        searchPlaceholder="Search by name, employee number or duty station..."
-        showControls
-        onPrint={handlePrint}
-        onExport={handleExportToExcel}
-        onAdd={() => setShowAddForm(true)}
-      />
-
-      <div className="flex-grow pt-32 px-6">
-        {showAddForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center">
-            <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto z-50">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold">
-                  {newEmployee.ID ? 'Edit Employee' : 'Add New Employee'}
-                </h2>
-                <button
-                  onClick={() => {
-                    setShowAddForm(false);
-                    clearForm();
-                  }}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <X className="h-6 w-6" />
-                </button>
-              </div>
-              <form
-                onSubmit={handleAddOrUpdateEmployee}
-                className="grid grid-cols-3 gap-4"
+    <div className="flex-grow pt-32 px-6">
+      {showAddForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto z-50">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold">
+                {newEmployee.ID ? 'Edit Employee' : 'Add New Employee'}
+              </h2>
+              <button
+                onClick={() => {
+                  setShowAddForm(false);
+                  clearForm();
+                }}
+                className="text-gray-500 hover:text-gray-700"
               >
-                <div>
-                  <label
-                    htmlFor="establishedPost"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Number of Established Posts
-                  </label>
-                  <input
-                    id="establishedPost"
-                    type="number"
-                    value={newEmployee.NO_OF_ESTABLISHED_POST || ''}
-                    onChange={(e) => {
-                      const establishedPosts = parseInt(e.target.value) || null;
-                      const filledPosts = newEmployee.NO_OF_FILLED_POST || 0;
-                      setNewEmployee({
-                        ...newEmployee,
-                        NO_OF_ESTABLISHED_POST: establishedPosts,
-                        NO_OF_VACANT_POST: establishedPosts
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            <form
+              onSubmit={handleAddOrUpdateEmployee}
+              className="grid grid-cols-3 gap-4"
+            >
+              <div>
+                <label
+                  htmlFor="establishedPost"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Number of Established Posts
+                </label>
+                <input
+                  id="establishedPost"
+                  type="number"
+                  value={newEmployee.NO_OF_ESTABLISHED_POST || ''}
+                  onChange={(e) => {
+                    const establishedPosts = parseInt(e.target.value) || null;
+                    const filledPosts = newEmployee.NO_OF_FILLED_POST || 0;
+                    setNewEmployee({
+                      ...newEmployee,
+                      NO_OF_ESTABLISHED_POST: establishedPosts,
+                      NO_OF_VACANT_POST: establishedPosts
+                        ? establishedPosts - filledPosts
+                        : null,
+                    });
+                  }}
+                  className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="filledPost"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Number of Filled Posts
+                </label>
+                <input
+                  id="filledPost"
+                  type="number"
+                  value={newEmployee.NO_OF_FILLED_POST || ''}
+                  onChange={(e) => {
+                    const filledPosts = parseInt(e.target.value) || null;
+                    const establishedPosts =
+                      newEmployee.NO_OF_ESTABLISHED_POST || 0;
+                    setNewEmployee({
+                      ...newEmployee,
+                      NO_OF_FILLED_POST: filledPosts,
+                      NO_OF_VACANT_POST:
+                        filledPosts !== null
                           ? establishedPosts - filledPosts
                           : null,
-                      });
-                    }}
-                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                  />
-                </div>
+                    });
+                  }}
+                  className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                />
+              </div>
 
-                <div>
-                  <label
-                    htmlFor="filledPost"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Number of Filled Posts
-                  </label>
-                  <input
-                    id="filledPost"
-                    type="number"
-                    value={newEmployee.NO_OF_FILLED_POST || ''}
-                    onChange={(e) => {
-                      const filledPosts = parseInt(e.target.value) || null;
-                      const establishedPosts =
-                        newEmployee.NO_OF_ESTABLISHED_POST || 0;
-                      setNewEmployee({
-                        ...newEmployee,
-                        NO_OF_FILLED_POST: filledPosts,
-                        NO_OF_VACANT_POST:
-                          filledPosts !== null
-                            ? establishedPosts - filledPosts
-                            : null,
-                      });
-                    }}
-                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="vacantPost"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Number of Vacant Posts
-                  </label>
-                  <input
-                    id="vacantPost"
-                    type="number"
-                    value={newEmployee.NO_OF_VACANT_POST || ''}
-                    readOnly
-                    disabled
-                    className="mt-1 p-2 w-full border rounded-md bg-gray-100 cursor-not-allowed"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="grade"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Grade
-                  </label>
-                  <input
-                    id="grade"
-                    type="text"
-                    placeholder="Enter grade"
-                    value={newEmployee.GRADE}
-                    onChange={(e) =>
-                      setNewEmployee({ ...newEmployee, GRADE: e.target.value })
-                    }
-                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="position"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Name of Position
-                  </label>
-                  <input
-                    id="position"
-                    type="text"
-                    placeholder="Enter position"
-                    value={newEmployee.NAME_OF_POSITION}
-                    onChange={(e) =>
-                      setNewEmployee({
-                        ...newEmployee,
-                        NAME_OF_POSITION: e.target.value,
-                      })
-                    }
-                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    EmployeeName
-                  </label>
-                  <input
-                    id="name"
-                    type="text"
-                    placeholder="Enter full name"
-                    value={newEmployee.NAME}
-                    onChange={(e) =>
-                      setNewEmployee({ ...newEmployee, NAME: e.target.value })
-                    }
-                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="empNumber"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Employee Number
-                  </label>
-                  <input
-                    id="empNumber"
-                    type="number"
-                    placeholder="Enter employee number"
-                    value={newEmployee.EMP_NUMBER || ''}
-                    onChange={(e) =>
-                      setNewEmployee({
-                        ...newEmployee,
-                        EMP_NUMBER: parseInt(e.target.value) || null,
-                      })
-                    }
-                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="gender"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Gender
-                  </label>
-                  <select
-                    id="gender"
-                    value={newEmployee.GENDER}
-                    onChange={(e) =>
-                      setNewEmployee({ ...newEmployee, GENDER: e.target.value })
-                    }
-                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                  >
-                    <option value="">Select Gender</option>
-                    <option value="M">Male</option>
-                    <option value="F">Female</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="qualification"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Qualification
-                  </label>
-                  <input
-                    id="qualification"
-                    type="text"
-                    placeholder="Enter qualification"
-                    value={newEmployee.QUALIFICATION || ''}
-                    onChange={(e) =>
-                      setNewEmployee({
-                        ...newEmployee,
-                        QUALIFICATION: e.target.value,
-                      })
-                    }
-                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="dateOfFirstAppointment"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Date of First Appointment
-                  </label>
-                  <input
-                    id="dateOfFirstAppointment"
-                    type="date"
-                    value={newEmployee.DATE_OF_FIRST_APPOINTMENT || ''}
-                    onChange={(e) =>
-                      setNewEmployee({
-                        ...newEmployee,
-                        DATE_OF_FIRST_APPOINTMENT: e.target.value,
-                      })
-                    }
-                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="dateOfPromotion"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Date of Promotion to Current Position
-                  </label>
-                  <input
-                    id="dateOfPromotion"
-                    type="date"
-                    value={
-                      newEmployee.DATE_OF_PROMOTION_TO_CURRENT_POSITION || ''
-                    }
-                    onChange={(e) => {
-                      const promotionDate = e.target.value;
-                      setNewEmployee({
-                        ...newEmployee,
-                        DATE_OF_PROMOTION_TO_CURRENT_POSITION: promotionDate,
-                        YEARS_ON_CURRENT_POSITION:
-                          calculateDuration(promotionDate),
-                      });
-                    }}
-                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="yearsOnCurrentPosition"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Years on Current Position
-                  </label>
-                  <input
-                    id="yearsOnCurrentPosition"
-                    type="text"
-                    value={calculateDuration(
-                      newEmployee.DATE_OF_PROMOTION_TO_CURRENT_POSITION
-                    )}
-                    readOnly
-                    disabled
-                    className="mt-1 p-2 w-full border rounded-md bg-gray-100 cursor-not-allowed"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="previousDutyStation"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Previous Duty Station
-                  </label>
-                  <input
-                    id="previousDutyStation"
-                    type="text"
-                    placeholder="Enter previous duty station"
-                    value={newEmployee.PREVIOUS_DUTY_STATION || ''}
-                    onChange={(e) =>
-                      setNewEmployee({
-                        ...newEmployee,
-                        PREVIOUS_DUTY_STATION: e.target.value,
-                      })
-                    }
-                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="currentDutyStation"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Current Duty Station
-                  </label>
-                  <input
-                    id="currentDutyStation"
-                    type="text"
-                    placeholder="Enter current duty station"
-                    value={newEmployee.CURRENT_DUTY_STATION}
-                    onChange={(e) =>
-                      setNewEmployee({
-                        ...newEmployee,
-                        CURRENT_DUTY_STATION: e.target.value,
-                      })
-                    }
-                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="dutyStationDistrict"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Duty Station District
-                  </label>
-                  <input
-                    id="dutyStationDistrict"
-                    type="text"
-                    placeholder="Enter duty station district"
-                    value={newEmployee.DUTY_STATION_DISTRICT}
-                    onChange={(e) =>
-                      setNewEmployee({
-                        ...newEmployee,
-                        DUTY_STATION_DISTRICT: e.target.value,
-                      })
-                    }
-                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="costCenter"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Cost Center
-                  </label>
-                  <input
-                    id="costCenter"
-                    type="text"
-                    placeholder="Enter cost center"
-                    value={newEmployee.COST_CENTER || ''}
-                    onChange={(e) =>
-                      setNewEmployee({
-                        ...newEmployee,
-                        COST_CENTER: e.target.value,
-                      })
-                    }
-                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="vote"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Vote
-                  </label>
-                  <input
-                    id="vote"
-                    type="text"
-                    placeholder="Enter vote"
-                    value={newEmployee.VOTE || ''}
-                    onChange={(e) =>
-                      setNewEmployee({
-                        ...newEmployee,
-                        VOTE: e.target.value,
-                      })
-                    }
-                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="dateReportedToCurrentStation"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Date Reported to Current Station
-                  </label>
-                  <input
-                    id="dateReportedToCurrentStation"
-                    type="date"
-                    value={newEmployee.DATE_REPORTED_TO_CURRENT_STATION || ''}
-                    onChange={(e) => {
-                      const reportedDate = e.target.value;
-                      setNewEmployee({
-                        ...newEmployee,
-                        DATE_REPORTED_TO_CURRENT_STATION: reportedDate,
-                        NUMBER_OF_YEARS_AT_DUTY_STATION:
-                          calculateDuration(reportedDate),
-                      });
-                    }}
-                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="yearsAtStation"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Years at Duty Station
-                  </label>
-                  <input
-                    id="yearsAtStation"
-                    type="text"
-                    value={calculateDuration(
-                      newEmployee.DATE_REPORTED_TO_CURRENT_STATION
-                    )}
-                    readOnly
-                    disabled
-                    className="mt-1 p-2 w-full border rounded-md bg-gray-100 cursor-not-allowed"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="dateOfBirth"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Date of Birth
-                  </label>
-                  <input
-                    id="dateOfBirth"
-                    type="date"
-                    value={newEmployee.DATE_OF_BIRTH || ''}
-                    onChange={(e) =>
-                      setNewEmployee({
-                        ...newEmployee,
-                        DATE_OF_BIRTH: e.target.value,
-                      })
-                    }
-                    className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="col-span-3 mt-4 bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md transition duration-300 ease-in-out"
+              <div>
+                <label
+                  htmlFor="vacantPost"
+                  className="block text-sm font-medium text-gray-700"
                 >
-                  {newEmployee.ID ? 'Update Employee' : 'Add Employee'}
-                </button>
-              </form>
-            </div>
+                  Number of Vacant Posts
+                </label>
+                <input
+                  id="vacantPost"
+                  type="number"
+                  value={newEmployee.NO_OF_VACANT_POST || ''}
+                  readOnly
+                  disabled
+                  className="mt-1 p-2 w-full border rounded-md bg-gray-100 cursor-not-allowed"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="grade"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Grade
+                </label>
+                <input
+                  id="grade"
+                  type="text"
+                  placeholder="Enter grade"
+                  value={newEmployee.GRADE}
+                  onChange={(e) =>
+                    setNewEmployee({ ...newEmployee, GRADE: e.target.value })
+                  }
+                  className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="position"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Name of Position
+                </label>
+                <input
+                  id="position"
+                  type="text"
+                  placeholder="Enter position"
+                  value={newEmployee.NAME_OF_POSITION}
+                  onChange={(e) =>
+                    setNewEmployee({
+                      ...newEmployee,
+                      NAME_OF_POSITION: e.target.value,
+                    })
+                  }
+                  className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  EmployeeName
+                </label>
+                <input
+                  id="name"
+                  type="text"
+                  placeholder="Enter full name"
+                  value={newEmployee.NAME}
+                  onChange={(e) =>
+                    setNewEmployee({ ...newEmployee, NAME: e.target.value })
+                  }
+                  className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="empNumber"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Employee Number
+                </label>
+                <input
+                  id="empNumber"
+                  type="number"
+                  placeholder="Enter employee number"
+                  value={newEmployee.EMP_NUMBER || ''}
+                  onChange={(e) =>
+                    setNewEmployee({
+                      ...newEmployee,
+                      EMP_NUMBER: parseInt(e.target.value) || null,
+                    })
+                  }
+                  className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="gender"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Gender
+                </label>
+                <select
+                  id="gender"
+                  value={newEmployee.GENDER}
+                  onChange={(e) =>
+                    setNewEmployee({ ...newEmployee, GENDER: e.target.value })
+                  }
+                  className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                >
+                  <option value="">Select Gender</option>
+                  <option value="M">Male</option>
+                  <option value="F">Female</option>
+                </select>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="qualification"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Qualification
+                </label>
+                <input
+                  id="qualification"
+                  type="text"
+                  placeholder="Enter qualification"
+                  value={newEmployee.QUALIFICATION || ''}
+                  onChange={(e) =>
+                    setNewEmployee({
+                      ...newEmployee,
+                      QUALIFICATION: e.target.value,
+                    })
+                  }
+                  className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="dateOfFirstAppointment"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Date of First Appointment
+                </label>
+                <input
+                  id="dateOfFirstAppointment"
+                  type="date"
+                  value={newEmployee.DATE_OF_FIRST_APPOINTMENT || ''}
+                  onChange={(e) =>
+                    setNewEmployee({
+                      ...newEmployee,
+                      DATE_OF_FIRST_APPOINTMENT: e.target.value,
+                    })
+                  }
+                  className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="dateOfPromotion"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Date of Promotion to Current Position
+                </label>
+                <input
+                  id="dateOfPromotion"
+                  type="date"
+                  value={
+                    newEmployee.DATE_OF_PROMOTION_TO_CURRENT_POSITION || ''
+                  }
+                  onChange={(e) => {
+                    const promotionDate = e.target.value;
+                    setNewEmployee({
+                      ...newEmployee,
+                      DATE_OF_PROMOTION_TO_CURRENT_POSITION: promotionDate,
+                      YEARS_ON_CURRENT_POSITION:
+                        calculateDuration(promotionDate),
+                    });
+                  }}
+                  className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="yearsOnCurrentPosition"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Years on Current Position
+                </label>
+                <input
+                  id="yearsOnCurrentPosition"
+                  type="text"
+                  value={calculateDuration(
+                    newEmployee.DATE_OF_PROMOTION_TO_CURRENT_POSITION
+                  )}
+                  readOnly
+                  disabled
+                  className="mt-1 p-2 w-full border rounded-md bg-gray-100 cursor-not-allowed"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="previousDutyStation"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Previous Duty Station
+                </label>
+                <input
+                  id="previousDutyStation"
+                  type="text"
+                  placeholder="Enter previous duty station"
+                  value={newEmployee.PREVIOUS_DUTY_STATION || ''}
+                  onChange={(e) =>
+                    setNewEmployee({
+                      ...newEmployee,
+                      PREVIOUS_DUTY_STATION: e.target.value,
+                    })
+                  }
+                  className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="currentDutyStation"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Current Duty Station
+                </label>
+                <input
+                  id="currentDutyStation"
+                  type="text"
+                  placeholder="Enter current duty station"
+                  value={newEmployee.CURRENT_DUTY_STATION}
+                  onChange={(e) =>
+                    setNewEmployee({
+                      ...newEmployee,
+                      CURRENT_DUTY_STATION: e.target.value,
+                    })
+                  }
+                  className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="dutyStationDistrict"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Duty Station District
+                </label>
+                <input
+                  id="dutyStationDistrict"
+                  type="text"
+                  placeholder="Enter duty station district"
+                  value={newEmployee.DUTY_STATION_DISTRICT}
+                  onChange={(e) =>
+                    setNewEmployee({
+                      ...newEmployee,
+                      DUTY_STATION_DISTRICT: e.target.value,
+                    })
+                  }
+                  className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="costCenter"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Cost Center
+                </label>
+                <input
+                  id="costCenter"
+                  type="text"
+                  placeholder="Enter cost center"
+                  value={newEmployee.COST_CENTER || ''}
+                  onChange={(e) =>
+                    setNewEmployee({
+                      ...newEmployee,
+                      COST_CENTER: e.target.value,
+                    })
+                  }
+                  className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="vote"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Vote
+                </label>
+                <input
+                  id="vote"
+                  type="text"
+                  placeholder="Enter vote"
+                  value={newEmployee.VOTE || ''}
+                  onChange={(e) =>
+                    setNewEmployee({
+                      ...newEmployee,
+                      VOTE: e.target.value,
+                    })
+                  }
+                  className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="dateReportedToCurrentStation"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Date Reported to Current Station
+                </label>
+                <input
+                  id="dateReportedToCurrentStation"
+                  type="date"
+                  value={newEmployee.DATE_REPORTED_TO_CURRENT_STATION || ''}
+                  onChange={(e) => {
+                    const reportedDate = e.target.value;
+                    setNewEmployee({
+                      ...newEmployee,
+                      DATE_REPORTED_TO_CURRENT_STATION: reportedDate,
+                      NUMBER_OF_YEARS_AT_DUTY_STATION:
+                        calculateDuration(reportedDate),
+                    });
+                  }}
+                  className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="yearsAtStation"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Years at Duty Station
+                </label>
+                <input
+                  id="yearsAtStation"
+                  type="text"
+                  value={calculateDuration(
+                    newEmployee.DATE_REPORTED_TO_CURRENT_STATION
+                  )}
+                  readOnly
+                  disabled
+                  className="mt-1 p-2 w-full border rounded-md bg-gray-100 cursor-not-allowed"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="dateOfBirth"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Date of Birth
+                </label>
+                <input
+                  id="dateOfBirth"
+                  type="date"
+                  value={newEmployee.DATE_OF_BIRTH || ''}
+                  onChange={(e) =>
+                    setNewEmployee({
+                      ...newEmployee,
+                      DATE_OF_BIRTH: e.target.value,
+                    })
+                  }
+                  className="mt-1 p-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="col-span-3 mt-4 bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md transition duration-300 ease-in-out"
+              >
+                {newEmployee.ID ? 'Update Employee' : 'Add Employee'}
+              </button>
+            </form>
           </div>
-        )}
+        </div>
+      )}
 
-        <div className="flex-grow overflow-auto">
-          <div className="overflow-x-auto shadow-md rounded-lg">
-            <table className="w-full bg-white table-fixed">
-              <thead className="bg-gray-100 sticky top-0">
-                <tr>
-                  <th className="py-2 px-2 text-xs text-left">
-                    Established Posts
-                  </th>
-                  <th className="py-2 px-2 text-xs text-left">Filled Posts</th>
-                  <th className="py-2 px-2 text-xs text-left">Vacant Posts</th>
-                  <th className="py-2 px-2 text-xs text-left">Name</th>
-                  <th className="py-2 px-2 text-xs text-left">Grade</th>
-                  <th className="py-2 px-2 text-xs text-left">Position</th>
+      <div className="flex-grow overflow-auto">
+        <div className="overflow-x-auto shadow-md rounded-lg">
+          <table className="w-full bg-white table-fixed">
+            <thead className="bg-gray-100 sticky top-0">
+              <tr>
+                <th className="py-2 px-2 text-xs text-left">
+                  Established Posts
+                </th>
+                <th className="py-2 px-2 text-xs text-left">Filled Posts</th>
+                <th className="py-2 px-2 text-xs text-left">Vacant Posts</th>
+                <th className="py-2 px-2 text-xs text-left">Name</th>
+                <th className="py-2 px-2 text-xs text-left">Grade</th>
+                <th className="py-2 px-2 text-xs text-left">Position</th>
 
-                  <th className="py-2 px-2 text-xs text-left">Emp Number</th>
-                  <th className="py-2 px-2 text-xs text-left">Gender</th>
-                  <th className="py-2 px-2 text-xs text-left">Qualification</th>
-                  <th className="py-2 px-2 text-xs text-left">Age</th>
-                  <th className="py-2 px-2 text-xs text-left">
-                    First Appointment
-                  </th>
-                  <th className="py-2 px-2 text-xs text-left">
-                    Promotion Date
-                  </th>
-                  <th className="py-2 px-2 text-xs text-left">
-                    Years in Position
-                  </th>
-                  <th className="py-2 px-2 text-xs text-left">
-                    Previous Station
-                  </th>
-                  <th className="py-2 px-2 text-xs text-left">
-                    Current Station
-                  </th>
-                  <th className="py-2 px-2 text-xs text-left">Cost Center</th>
-                  <th className="py-2 px-2 text-xs text-left">Vote</th>
-                  <th className="py-2 px-2 text-xs text-left">District</th>
-                  <th className="py-2 px-2 text-xs text-left">Date Reported</th>
-                  <th className="py-2 px-2 text-xs text-left">
-                    Years at Station
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredEmployees.map((employee) => (
-                  <React.Fragment key={employee.ID}>
-                    <tr
-                      className={`hover:bg-gray-50 cursor-pointer ${
-                        selectedEmployee === employee ? 'bg-blue-100' : ''
-                      }`}
-                      onClick={() => handleRowClick(employee)}
-                    >
-                      <td className="py-2 px-2 text-xs whitespace-normal">
-                        {employee.NO_OF_ESTABLISHED_POST}
-                      </td>
-                      <td className="py-2 px-2 text-xs whitespace-normal">
-                        {employee.NO_OF_FILLED_POST}
-                      </td>
-                      <td className="py-2 px-2 text-xs whitespace-normal">
-                        {employee.NO_OF_VACANT_POST}
-                      </td>
-                      <td className="py-2 px-2 text-xs whitespace-normal">
-                        {employee.NAME}
-                      </td>
-                      <td className="py-2 px-2 text-xs whitespace-normal">
-                        {employee.GRADE}
-                      </td>
-                      <td className="py-2 px-2 text-xs whitespace-normal">
-                        {employee.NAME_OF_POSITION}
-                      </td>
+                <th className="py-2 px-2 text-xs text-left">Emp Number</th>
+                <th className="py-2 px-2 text-xs text-left">Gender</th>
+                <th className="py-2 px-2 text-xs text-left">Qualification</th>
+                <th className="py-2 px-2 text-xs text-left">Age</th>
+                <th className="py-2 px-2 text-xs text-left">
+                  First Appointment
+                </th>
+                <th className="py-2 px-2 text-xs text-left">Promotion Date</th>
+                <th className="py-2 px-2 text-xs text-left">
+                  Years in Position
+                </th>
+                <th className="py-2 px-2 text-xs text-left">
+                  Previous Station
+                </th>
+                <th className="py-2 px-2 text-xs text-left">Current Station</th>
+                <th className="py-2 px-2 text-xs text-left">Cost Center</th>
+                <th className="py-2 px-2 text-xs text-left">Vote</th>
+                <th className="py-2 px-2 text-xs text-left">District</th>
+                <th className="py-2 px-2 text-xs text-left">Date Reported</th>
+                <th className="py-2 px-2 text-xs text-left">
+                  Years at Station
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredEmployees.map((employee) => (
+                <React.Fragment key={employee.ID}>
+                  <tr
+                    className={`hover:bg-gray-50 cursor-pointer ${
+                      selectedEmployee === employee ? 'bg-blue-100' : ''
+                    }`}
+                    onClick={() => handleRowClick(employee)}
+                  >
+                    <td className="py-2 px-2 text-xs whitespace-normal">
+                      {employee.NO_OF_ESTABLISHED_POST}
+                    </td>
+                    <td className="py-2 px-2 text-xs whitespace-normal">
+                      {employee.NO_OF_FILLED_POST}
+                    </td>
+                    <td className="py-2 px-2 text-xs whitespace-normal">
+                      {employee.NO_OF_VACANT_POST}
+                    </td>
+                    <td className="py-2 px-2 text-xs whitespace-normal">
+                      {employee.NAME}
+                    </td>
+                    <td className="py-2 px-2 text-xs whitespace-normal">
+                      {employee.GRADE}
+                    </td>
+                    <td className="py-2 px-2 text-xs whitespace-normal">
+                      {employee.NAME_OF_POSITION}
+                    </td>
 
-                      <td className="py-2 px-2 text-xs whitespace-normal">
-                        {employee.EMP_NUMBER}
-                      </td>
-                      <td className="py-2 px-2 text-xs whitespace-normal">
-                        {employee.GENDER}
-                      </td>
-                      <td className="py-2 px-2 text-xs whitespace-normal">
-                        {employee.QUALIFICATION}
-                      </td>
-                      <td className="py-2 px-2 text-xs whitespace-normal">
-                        {calculateAge(employee.DATE_OF_BIRTH)}
-                      </td>
-                      <td className="py-2 px-2 text-xs whitespace-normal">
-                        {employee.DATE_OF_FIRST_APPOINTMENT
-                          ? new Date(employee.DATE_OF_FIRST_APPOINTMENT)
-                              .toISOString()
-                              .split('T')[0]
-                          : ''}
-                      </td>
-                      <td className="py-2 px-2 text-xs whitespace-normal">
-                        {employee.DATE_OF_PROMOTION_TO_CURRENT_POSITION
-                          ? new Date(
-                              employee.DATE_OF_PROMOTION_TO_CURRENT_POSITION
-                            )
-                              .toISOString()
-                              .split('T')[0]
-                          : ''}
-                      </td>
-                      <td className="py-2 px-2 text-xs whitespace-normal">
-                        {calculateDuration(
-                          employee.DATE_OF_PROMOTION_TO_CURRENT_POSITION
-                        )}
-                      </td>
-                      <td className="py-2 px-2 text-xs whitespace-normal">
-                        {employee.PREVIOUS_DUTY_STATION}
-                      </td>
-                      <td className="py-2 px-2 text-xs whitespace-normal">
-                        {employee.CURRENT_DUTY_STATION}
-                      </td>
-                      <td className="py-2 px-2 text-xs whitespace-normal">
-                        {employee.COST_CENTER}
-                      </td>
-                      <td className="py-2 px-2 text-xs whitespace-normal">
-                        {employee.VOTE}
-                      </td>
-                      <td className="py-2 px-2 text-xs whitespace-normal">
-                        {employee.DUTY_STATION_DISTRICT}
-                      </td>
-                      <td className="py-2 px-2 text-xs whitespace-normal">
-                        {employee.DATE_REPORTED_TO_CURRENT_STATION
-                          ? new Date(employee.DATE_REPORTED_TO_CURRENT_STATION)
-                              .toISOString()
-                              .split('T')[0]
-                          : ''}
-                      </td>
-                      <td className="py-2 px-2 text-xs whitespace-normal">
-                        {calculateDuration(
-                          employee.DATE_REPORTED_TO_CURRENT_STATION
-                        )}
+                    <td className="py-2 px-2 text-xs whitespace-normal">
+                      {employee.EMP_NUMBER}
+                    </td>
+                    <td className="py-2 px-2 text-xs whitespace-normal">
+                      {employee.GENDER}
+                    </td>
+                    <td className="py-2 px-2 text-xs whitespace-normal">
+                      {employee.QUALIFICATION}
+                    </td>
+                    <td className="py-2 px-2 text-xs whitespace-normal">
+                      {calculateAge(employee.DATE_OF_BIRTH)}
+                    </td>
+                    <td className="py-2 px-2 text-xs whitespace-normal">
+                      {employee.DATE_OF_FIRST_APPOINTMENT
+                        ? new Date(employee.DATE_OF_FIRST_APPOINTMENT)
+                            .toISOString()
+                            .split('T')[0]
+                        : ''}
+                    </td>
+                    <td className="py-2 px-2 text-xs whitespace-normal">
+                      {employee.DATE_OF_PROMOTION_TO_CURRENT_POSITION
+                        ? new Date(
+                            employee.DATE_OF_PROMOTION_TO_CURRENT_POSITION
+                          )
+                            .toISOString()
+                            .split('T')[0]
+                        : ''}
+                    </td>
+                    <td className="py-2 px-2 text-xs whitespace-normal">
+                      {calculateDuration(
+                        employee.DATE_OF_PROMOTION_TO_CURRENT_POSITION
+                      )}
+                    </td>
+                    <td className="py-2 px-2 text-xs whitespace-normal">
+                      {employee.PREVIOUS_DUTY_STATION}
+                    </td>
+                    <td className="py-2 px-2 text-xs whitespace-normal">
+                      {employee.CURRENT_DUTY_STATION}
+                    </td>
+                    <td className="py-2 px-2 text-xs whitespace-normal">
+                      {employee.COST_CENTER}
+                    </td>
+                    <td className="py-2 px-2 text-xs whitespace-normal">
+                      {employee.VOTE}
+                    </td>
+                    <td className="py-2 px-2 text-xs whitespace-normal">
+                      {employee.DUTY_STATION_DISTRICT}
+                    </td>
+                    <td className="py-2 px-2 text-xs whitespace-normal">
+                      {employee.DATE_REPORTED_TO_CURRENT_STATION
+                        ? new Date(employee.DATE_REPORTED_TO_CURRENT_STATION)
+                            .toISOString()
+                            .split('T')[0]
+                        : ''}
+                    </td>
+                    <td className="py-2 px-2 text-xs whitespace-normal">
+                      {calculateDuration(
+                        employee.DATE_REPORTED_TO_CURRENT_STATION
+                      )}
+                    </td>
+                  </tr>
+                  {selectedEmployee === employee && (
+                    <tr>
+                      <td colSpan={20} className="py-2 px-2">
+                        <div className="flex justify-end space-x-2">
+                          <button
+                            onClick={() => handleEdit(employee)}
+                            className="bg-black hover:bg-gray-800 text-white px-2 py-1 rounded text-xs"
+                          >
+                            <Edit className="h-4 w-4 inline-block mr-1" /> Edit
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(employee);
+                            }}
+                            className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs"
+                          >
+                            <Trash2 className="h-4 w-4 inline-block mr-1" />{' '}
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
-                    {selectedEmployee === employee && (
-                      <tr>
-                        <td colSpan={20} className="py-2 px-2">
-                          <div className="flex justify-end space-x-2">
-                            <button
-                              onClick={() => handleEdit(employee)}
-                              className="bg-black hover:bg-gray-800 text-white px-2 py-1 rounded text-xs"
-                            >
-                              <Edit className="h-4 w-4 inline-block mr-1" />{' '}
-                              Edit
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDelete(employee);
-                              }}
-                              className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs"
-                            >
-                              <Trash2 className="h-4 w-4 inline-block mr-1" />{' '}
-                              Delete
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </React.Fragment>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                  )}
+                </React.Fragment>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
