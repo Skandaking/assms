@@ -11,6 +11,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -29,13 +30,13 @@ export function LogoutDialog({ isCollapsed }: LogoutDialogProps) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <button
-          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-500 hover:bg-red-50 transition-all duration-200
-            ${isCollapsed ? 'justify-center' : 'justify-start'}`}
+        <Button
+          variant="ghost"
+          className={`w-full flex items-center gap-3 text-sm justify-${isCollapsed ? 'center' : 'start'} h-9 text-red-500 hover:text-red-500 hover:bg-red-500/10`}
         >
-          <LogOut size={20} />
-          {!isCollapsed && <span className="font-medium">Logout</span>}
-        </button>
+          <LogOut size={18} />
+          {!isCollapsed && <span>Logout</span>}
+        </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

@@ -1,9 +1,18 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { ChevronDown, LogOut, Settings, User } from 'lucide-react';
+import { ChevronDown, LogOut, Menu, Settings } from 'lucide-react';
 import { useUser } from '@/context/UserContext';
 import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 interface AppHeaderProps {
   isCollapsed: boolean;
@@ -11,25 +20,7 @@ interface AppHeaderProps {
 
 const AppHeader = ({ isCollapsed }: AppHeaderProps) => {
   const { user, loading } = useUser();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
 
   // Get display name from user data, with fallbacks
   const getDisplayName = () => {
@@ -51,6 +42,21 @@ const AppHeader = ({ isCollapsed }: AppHeaderProps) => {
     return `User #${user.id}`;
   };
 
+  // Get user initials for avatar
+  const getUserInitials = () => {
+    if (!user) return 'U';
+
+    if (user.firstname && user.lastname) {
+      return `${user.firstname.charAt(0)}${user.lastname.charAt(0)}`.toUpperCase();
+    }
+
+    if (user.firstname) return user.firstname.charAt(0).toUpperCase();
+    if (user.lastname) return user.lastname.charAt(0).toUpperCase();
+    if (user.username) return user.username.charAt(0).toUpperCase();
+
+    return 'U';
+  };
+
   const handleLogout = async () => {
     // Clear user data from localStorage
     try {
@@ -70,68 +76,72 @@ const AppHeader = ({ isCollapsed }: AppHeaderProps) => {
     router.push('/login');
   };
 
-  const handleProfileClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setDropdownOpen(false);
-    // Use setTimeout to allow the dropdown to close before navigation
-    setTimeout(() => {
-      router.push('/profile');
-    }, 10);
+  const handleProfileClick = () => {
+    router.push('/profile');
   };
 
   return (
     <header
-      className={`fixed top-0 right-0 bg-white border-b z-40 transition-all duration-300 ${
-        isCollapsed ? 'left-[80px]' : 'left-[250px]'
+      className={`fixed top-0 right-0 border-b z-40 transition-all duration-300 h-16 bg-background ${
+        isCollapsed ? 'left-[80px]' : 'left-[256px]'
       }`}
     >
-      <div className="px-4">
-        <div className="flex items-center justify-end h-16">
-          <div className="flex items-center space-x-4">
-            {loading ? (
-              <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse"></div>
-            ) : (
-              <div className="relative" ref={dropdownRef}>
-                <button
-                  className="flex items-center space-x-2"
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                >
-                  <div className="flex items-center">
-                    <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                      <User className="h-5 w-5 text-gray-600" />
-                    </div>
-                    <div className="ml-2">
-                      <p className="text-sm font-medium">{getDisplayName()}</p>
-                      <p className="text-xs text-gray-500">
-                        {user ? user.role : 'Not logged in'}
-                      </p>
-                    </div>
-                    <ChevronDown className="h-4 w-4 text-gray-500 ml-1" />
-                  </div>
-                </button>
+      <div className="flex items-center justify-between h-full px-4">
+        <div className="sm:hidden">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="mr-2">
+                <Menu size={20} />
+                <span className="sr-only">Toggle menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="p-0">
+              {/* Mobile sidebar content would go here */}
+            </SheetContent>
+          </Sheet>
+        </div>
 
-                {/* User dropdown */}
-                {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border">
-                    <button
-                      onClick={handleProfileClick}
-                      className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      <Settings className="h-4 w-4 mr-2" />
-                      Profile Settings
-                    </button>
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Logout
-                    </button>
+        <div className="flex-1" />
+
+        <div className="flex items-center gap-2">
+          {loading ? (
+            <div className="w-8 h-8 bg-muted rounded-full animate-pulse" />
+          ) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-9 px-2 gap-2">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback className="bg-primary/10 text-primary">
+                      {getUserInitials()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col items-start text-sm">
+                    <span className="font-medium leading-none">
+                      {getDisplayName()}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {user?.role || 'Guest'}
+                    </span>
                   </div>
-                )}
-              </div>
-            )}
-          </div>
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem onClick={handleProfileClick}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Profile Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="text-red-500 focus:text-red-500"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </div>
     </header>

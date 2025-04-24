@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import { ChevronDown, LucideIcon } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
@@ -69,53 +70,58 @@ const SidebarItem = ({
 
   return (
     <div
-      className="mb-1 relative"
+      className="relative"
       onMouseEnter={() => isCollapsed && items && setShowSubmenu(true)}
       onMouseLeave={() => isCollapsed && setShowSubmenu(false)}
     >
       <div
         onClick={handleItemClick}
-        className={`
-          flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer
-          transition-all duration-200 select-none group relative
-          ${
-            isActive
-              ? 'bg-sidebar-active text-white'
-              : 'hover:bg-sidebar-background text-gray-700 hover:text-black'
-          }
-        `}
+        className={cn(
+          'flex items-center justify-between rounded-md cursor-pointer',
+          'px-3 py-2 text-sm font-medium transition-all duration-200 select-none group relative',
+          isActive
+            ? 'bg-primary/10 text-primary'
+            : 'hover:bg-accent text-muted-foreground hover:text-foreground'
+        )}
       >
         <div className="flex items-center gap-3">
           <Icon
-            size={20}
-            className={isActive ? 'text-white' : 'text-sidebar-iconColor'}
+            size={18}
+            className={cn(
+              isActive ? 'text-primary' : 'text-muted-foreground',
+              'group-hover:text-foreground'
+            )}
           />
-          {!isCollapsed && <span className="font-medium">{name}</span>}
+          {!isCollapsed && <span>{name}</span>}
         </div>
         {!isCollapsed && items && items.length > 0 && (
           <ChevronDown
-            size={18}
-            className={`transition-transform duration-200
-              ${expanded ? 'rotate-180' : ''}
-              ${isActive ? 'text-white' : 'text-sidebar-iconColor'}
-            `}
+            size={16}
+            className={cn(
+              'transition-transform duration-200',
+              expanded ? 'rotate-180' : '',
+              isActive ? 'text-primary' : 'text-muted-foreground'
+            )}
           />
         )}
         {isCollapsed && (
-          <div className="absolute left-full ml-6 bg-white shadow-md text-gray-700 px-4 py-2 rounded-md invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 whitespace-nowrap z-50">
+          <span className="absolute left-full ml-2 px-2 py-1 rounded bg-popover text-popover-foreground shadow-md border text-xs whitespace-nowrap opacity-0 invisible z-50 group-hover:opacity-100 group-hover:visible transition-all">
             {name}
-          </div>
+          </span>
         )}
       </div>
       {!isCollapsed && expanded && items && items.length > 0 && (
-        <div className="mt-1 mb-1 py-1">
+        <div className="mt-1 mb-1 ml-6 pl-2 border-l">
           {items.map((subItem) => (
             <div
               key={subItem.path}
               onClick={handleSubItemClick(subItem.path)}
-              className={`px-4 py-2 pl-10 hover:bg-sidebar-background cursor-pointer rounded-lg mx-2
-                ${subItem.path === pathname ? 'bg-sidebar-active text-white' : 'text-gray-700'}
-              `}
+              className={cn(
+                'px-3 py-1.5 text-xs rounded-md my-1 cursor-pointer transition-colors',
+                subItem.path === pathname
+                  ? 'bg-primary/10 text-primary font-medium'
+                  : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+              )}
             >
               {subItem.name}
             </div>
@@ -123,14 +129,17 @@ const SidebarItem = ({
         </div>
       )}
       {isCollapsed && showSubmenu && items && items.length > 0 && (
-        <div className="absolute left-full top-0 ml-6 bg-white shadow-md rounded-md py-2 min-w-[160px] z-50">
+        <div className="absolute left-full top-0 ml-2 bg-popover border rounded-md py-1 min-w-[160px] z-50 shadow-md">
           {items.map((subItem) => (
             <div
               key={subItem.path}
               onClick={handleSubItemClick(subItem.path)}
-              className={`px-4 py-2 hover:bg-sidebar-background cursor-pointer
-                ${subItem.path === pathname ? 'bg-sidebar-active text-white' : 'text-gray-700'}
-              `}
+              className={cn(
+                'px-3 py-1.5 text-xs cursor-pointer transition-colors',
+                subItem.path === pathname
+                  ? 'bg-primary/10 text-primary font-medium'
+                  : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+              )}
             >
               {subItem.name}
             </div>

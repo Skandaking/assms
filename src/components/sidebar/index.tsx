@@ -2,6 +2,7 @@
 
 import logo from '@/app/logo.png';
 import { LogoutDialog } from '@/components/logout-dialog';
+import { Button } from '@/components/ui/button';
 import {
   BadgeInfo,
   ChevronsLeft,
@@ -83,24 +84,16 @@ const Sidebar = ({
   return (
     <>
       <div
-        className={`fixed top-0 left-0 h-screen bg-white shadow-lg z-10 transition-all duration-300 flex flex-col justify-between
+        className={`fixed top-0 left-0 h-screen bg-background border-r shadow-sm z-10 transition-all duration-300 flex flex-col justify-between
         ${isCollapsed ? 'w-20' : 'w-64'}`}
       >
-        <div className="flex flex-col space-y-6 w-full p-4">
-          <div
-            className={`flex items-center justify-center text-3xl font-bold text-sidebar-active mb-4 transition-all duration-300 
-            ${isCollapsed ? 'text-xl px-0' : ''}`}
-          >
-            {isCollapsed ? (
-              <Image
-                src={logo}
-                alt="ASSMS Logo"
-                width={40}
-                height={40}
-                className="object-contain"
-              />
-            ) : (
-              <div className="flex items-center gap-2">
+        <div className="flex flex-col space-y-6 w-full">
+          <div className="border-b p-4">
+            <div
+              className={`flex items-center justify-center text-2xl font-bold mb-1 transition-all duration-300 
+              ${isCollapsed ? 'text-xl px-0' : ''}`}
+            >
+              {isCollapsed ? (
                 <Image
                   src={logo}
                   alt="ASSMS Logo"
@@ -108,36 +101,51 @@ const Sidebar = ({
                   height={40}
                   className="object-contain"
                 />
-                <span>ASSMS</span>
-              </div>
-            )}
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Image
+                    src={logo}
+                    alt="ASSMS Logo"
+                    width={40}
+                    height={40}
+                    className="object-contain"
+                  />
+                  <span className="text-primary tracking-tight">ASSMS</span>
+                </div>
+              )}
+            </div>
           </div>
-          <div className="flex flex-col space-y-2">
-            {items
-              .filter(
-                (item) => item.name !== 'User' || role === 'administrator'
-              )
-              .map((item, index) => (
-                <SidebarItem
-                  key={index}
-                  item={item}
-                  isCollapsed={isCollapsed}
-                />
-              ))}
+
+          <div className="px-3 py-2">
+            <div className="flex flex-col space-y-1">
+              {items
+                .filter(
+                  (item) => item.name !== 'User' || role === 'administrator'
+                )
+                .map((item, index) => (
+                  <SidebarItem
+                    key={index}
+                    item={item}
+                    isCollapsed={isCollapsed}
+                  />
+                ))}
+            </div>
           </div>
         </div>
 
-        <div className="p-4">
+        <div className="p-4 border-t">
           <LogoutDialog isCollapsed={isCollapsed} />
         </div>
       </div>
-      <button
+      <Button
+        variant="outline"
+        size="icon"
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className={`fixed top-20 z-20 bg-white shadow-md rounded-full p-1.5 hover:bg-gray-100 transition-colors
+        className={`fixed top-20 z-20 bg-background border shadow-sm rounded-full p-0 hover:bg-accent transition-all
           ${isCollapsed ? 'left-16' : 'left-60'}`}
       >
-        {isCollapsed ? <ChevronsRight size={20} /> : <ChevronsLeft size={20} />}
-      </button>
+        {isCollapsed ? <ChevronsRight size={16} /> : <ChevronsLeft size={16} />}
+      </Button>
     </>
   );
 };
